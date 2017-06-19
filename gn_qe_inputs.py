@@ -111,7 +111,7 @@ ion_dynamics='bfgs',
             fid = self.qe_write_cell(fid, atoms.get_cell())
             fid = self.qe_write_species(fid, atoms, self.pot)
             fid = self.qe_write_pos(fid, atoms)
-            fid = self.qe_write_kpts(fid, (40, 40, 40))
+            fid = self.qe_write_kpts(fid, (33, 33, 33))
             fid.close()
         return
 
