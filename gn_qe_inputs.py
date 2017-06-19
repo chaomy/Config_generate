@@ -55,7 +55,7 @@ class gn_qe_infile(object):
         self.ecutwfc = ecut
         return
 
-    def set_kpnts(self, kpnts=(46, 46, 46)):
+    def set_kpnts(self, kpnts=(40, 40, 40)):
         self.kpnts = kpnts
         return
 
@@ -111,7 +111,7 @@ ion_dynamics='bfgs',
             fid = self.qe_write_cell(fid, atoms.get_cell())
             fid = self.qe_write_species(fid, atoms, self.pot)
             fid = self.qe_write_pos(fid, atoms)
-            fid = self.qe_write_kpts(fid, (46, 46, 46))
+            fid = self.qe_write_kpts(fid, (40, 40, 40))
             fid.close()
         return
 
