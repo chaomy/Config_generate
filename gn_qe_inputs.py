@@ -30,6 +30,7 @@ class gn_qe_infile(object):
         self.set_cal_prefix()
         self.set_cal_type()
         self.set_ecut()
+        self.set_kpnts()
         self.set_disk_io()
         self.set_thr()
         return
@@ -50,8 +51,12 @@ class gn_qe_infile(object):
         self.cal_prefix = prefix
         return
 
-    def set_ecut(self, ecut='38'):
+    def set_ecut(self, ecut='45'):
         self.ecutwfc = ecut
+        return
+
+    def set_kpnts(self, kpnts=(46, 46, 46)):
+        self.kpnts = kpnts
         return
 
     def set_thr(self, thr='1.0D-5'):
@@ -153,7 +158,9 @@ ion_dynamics='bfgs',
                                                 pos[i, 2]))
         return fid
 
-    def qe_write_kpts(self, fid, kpts=(1, 1, 1)):
+    def qe_write_kpts(self, fid, kpts=None):
+        if kpts is None:
+            kpts = self.kpnts
         fid.write("K_POINTS automatic\n")
         fid.write("{:d} {:d} {:d}  0  0  0\n".format(
             kpts[0], kpts[1], kpts[2]))
