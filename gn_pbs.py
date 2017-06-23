@@ -14,9 +14,11 @@
 # Created By    : Chaoming Yang
 #
 ###################################################################
+import os
 
 
 class gn_pbs(object):
+
     def __init__(self,
                  in_type="va",
                  job_title=None,
@@ -73,11 +75,17 @@ class gn_pbs(object):
         print jobname
         return
 
+    def vasp_move_inputs(self, dirname):
+        os.system("cp KPOINTS {}".format(dirname))
+        os.system("cp INCAR   {}".format(dirname))
+        os.system("cp POTCAR  {}".format(dirname))
+        os.system("cp POSCAR  {}".format(dirname))
+        return
+
     def write_pbs(self, od=None):
         if self.in_type == "va":
             print "assign_outfile"
             outfile = "va.pbs"
-
         if od == True:
             flux_type = "fluxod"
         else:
