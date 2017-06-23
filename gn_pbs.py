@@ -75,9 +75,14 @@ class gn_pbs(object):
         print jobname
         return
 
-    def move_va_inputs(self, dirname, *args):
+    def copy_inputs(self, dirname, *args):
         for filename in args:
             os.system("cp {} {}".format(filename, dirname))
+        return
+
+    def move_inputs(self, dirname, *args):
+        for filename in args:
+            os.system("mv {} {}".format(filename, dirname))
         return
 
     def write_pbs(self, od=None):
