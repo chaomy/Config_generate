@@ -75,11 +75,9 @@ class gn_pbs(object):
         print jobname
         return
 
-    def vasp_move_inputs(self, dirname):
-        os.system("cp KPOINTS {}".format(dirname))
-        os.system("cp INCAR   {}".format(dirname))
-        os.system("cp POTCAR  {}".format(dirname))
-        os.system("cp POSCAR  {}".format(dirname))
+    def move_va_inputs(self, dirname, *args):
+        for filename in args:
+            os.system("cp {} {}".format(filename, dirname))
         return
 
     def write_pbs(self, od=None):
