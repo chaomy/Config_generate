@@ -18,6 +18,7 @@
 
 
 class gn_incar(object):
+
     def __init__(self, in_type=None):
         print in_type
         if in_type is not None:
@@ -64,9 +65,10 @@ class gn_incar(object):
         return
 
     def write_incar(self, fname="INCAR"):
-        if self.in_type == 'dftunrelax':
+        if self.in_type == 'dftunrelax' or self.in_type == 'scf':
             with open(fname, 'w') as fid:
-                fid.write("""PREC   = A
+                fid.write("""
+PREC   = A
 IBRION =-1
 ISMEAR =-5
 ISIF   = 2
@@ -82,17 +84,13 @@ LVTOT  = .FALSE.
 """ % (self._accuracy, self._npar))
                 fid.close()
 
-        elif self.in_type == 'dftrelax':
+        elif self.in_type == 'dftrelax' or self.in_type == 'relax':
             with open(fname, 'w') as fid:
-                fid.write("""PREC   = N
-
+                fid.write("""
 NSW    = %d
 IBRION = 2
 ISIF   = 2
 ISMEAR = 1
-
-#ENCUT = 380  # 1.5*(Max ENMAX)
-#EDIFF = %1.0e    ### 1e-6
 
 LELF   = .FALSE.
 LCHARG = .FALSE.
@@ -102,79 +100,46 @@ NPAR   = %d
 """ % (self.nsw, self._accuracy, self._npar))
                 fid.close()
 
-        elif self.in_type == 'ab_md':
+        elif self.in_type == 'ab_md': 
             with open(fname, 'w') as fid:
-                fid.write("""PREC   = M
-ISYM   = 2
+                fid.write("""
+PREC   = Med
+NSW    = {} 
+IBRION = 0      
+POTIM  = 0.5    
+ISIF   = 2     
+TEBEG  = {}
+TEEND  = {}
+SMASS  = 0
 
-NSW    = %d   ## number of ionic steps taken
-IBRION = 0    # time-dependent MD
-POTIM  = 0.5  # in ab MD is the time step
-ISIF   = 2    # 2 cell shape change no. cell volume change no. 3: allows c
-TEBEG  = %d
-TEEND  = %d
-SMASS  = 0    # in MD, no damping  Nose  NVT
+ISMEAR = 1
+EDIFF  = 1e-2
+NPAR   = 4
 
-ISMEAR = 1  #
-SIGMA  = 0.1
-#ENCUT  = 380.00 # 1.5*(Max ENMAX)
-#ENAUG  = 570.00
-EDIFF  =  1e-2
+LELF   = .FALSE.
 LCHARG = .FALSE.
 LWAVE  = .FALSE.
 LVTOT  = .FALSE.
-NPAR   =  4   # close to the square root of # of cores.
                          """ % (self.nsw,
                                 self._ab_md_temp,
                                 self._ab_md_temp))
                 fid.close()
 
-        elif self.in_type == 'isif4':
-            with open("INCAR", 'w') as fid:
-                fid.write("""PREC   = A
-NSW    = 100
-IBRION = 2
-ISIF   = 4
-ISMEAR = -5
-
-ENCUT  = 500.0
-EDIFF  = 1e-05
-NPAR   = 4
-LCHARG = .FALSE.
-LWAVE  = .FALSE.
-LVTOT  = .FALSE.
-                        """)
-            fid.close()
-
         elif self.in_type == 'phonon':
             with open(fname, 'w') as fid:
-                fid.write("""SYSTEM = run.cfg
-Start Parameter for This Run:
+                fid.write("""
 NWRITE = 2
+PREC   = A
 
-Electronic Relaxation 1:
-PREC   = Accurate
-ISYM   = 2
-
-Ionic Relaxation:
 NSW    = 1
-NBLOCK = 1
-KBLOCK = 1
 IBRION = 8
-POTIM  = 0.5
 ISIF   = 2
 TEBEG  = 300.
-SMASS  = 0
 
-DOS Related Values:
 ISMEAR = 1
-SIGMA  = 0.4
-EMIN   = 10.
-EMAX   = 0.
 LELF   = T
 LVTOT  = T
 
-Electronic Relaxation 2:
 IALGO  = 38
 LREAL  = .FALSE.
 ISPIN  = 1

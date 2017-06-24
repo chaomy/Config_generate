@@ -39,11 +39,11 @@ class gn_qe_infile(object):
         self.cal_type = caltype
         return
 
-    def set_disk_io(self, diskinfo='none'):
+    def set_disk_io(self, diskinfo='low'):
         self.diskinfo = diskinfo
         return
 
-    def set_degauss(self, degauss='0.2D0'):
+    def set_degauss(self, degauss='0.02D0'):
         self.degauss = degauss
         return
 
