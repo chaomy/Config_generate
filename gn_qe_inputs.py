@@ -115,21 +115,6 @@ ion_dynamics='bfgs',
             fid.close()
         return
 
-    def gn_infile_dipole_screw_atoms(self,
-                                     atoms=None):
-        self.set_cal_type('relax')
-        self.set_ecut('40')
-        with open('{}.in'.format(self.pot['element']), 'w') as fid:
-            fid = self.qe_write_control(fid, atoms)
-            fid = self.qe_write_system(fid, atoms)
-            fid = self.qe_write_electrons(fid)
-            fid = self.qe_write_cell(fid, atoms.get_cell())
-            fid = self.qe_write_species(fid, atoms, self.pot)
-            fid = self.qe_write_pos(fid, atoms)
-            fid = self.qe_write_kpts(fid, (1, 2, 8))
-            fid.close()
-        return
-
     def qe_write_cell(self, fid, cell):
         fid.write("CELL_PARAMETERS {angstrom}\n")
         fid.write("""{}  {}  {}
