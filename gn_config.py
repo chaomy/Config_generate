@@ -362,7 +362,8 @@ class bcc(gnStructure, add_strain):
     def write_bcc_primitive_with_strain(self,
                                         delta=None,
                                         in_tag=None,
-                                        in_size=None):
+                                        in_size=None,
+                                        write=True):
         if in_tag == 'ortho' or in_tag == 'c12':
             strain = self.volume_conserving_orthohombic(delta)
         elif in_tag == 'mono' or in_tag == 'c44':
@@ -371,7 +372,6 @@ class bcc(gnStructure, add_strain):
             strain = self.volumetric_strain(delta)
 
         atoms = self.set_bcc_primitive(in_size)
-
         org_cell = atoms.get_cell()
         new_cell = copy.deepcopy(org_cell)
 
@@ -382,8 +382,9 @@ class bcc(gnStructure, add_strain):
         atoms.set_cell(new_cell)
         atoms.set_positions(org_positions)
 
-        self.write_config_output(atoms)
-        return
+        if write is True:
+            self.write_config_output(atoms)
+        return atoms
 
     def example_of_crystal(self):
         a = 3.3

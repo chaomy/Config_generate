@@ -19,13 +19,8 @@
 
 class gn_incar(object):
 
-    def __init__(self, in_type=None):
-        print in_type
-        if in_type is not None:
-            self.in_type = in_type
-        else:
-            self.in_type = "dft"
-
+    def __init__(self, in_type='scf'):
+        self.in_type = in_type
         self.nsw = 1000
         self._ab_md_temp = 1000
         self._accuracy = 1e-5
@@ -65,7 +60,7 @@ class gn_incar(object):
         return
 
     def write_incar(self, fname="INCAR"):
-        if self.in_type == 'dftunrelax' or self.in_type == 'scf':
+        if self.in_type in ['unrelax', 'scf']:
             with open(fname, 'w') as fid:
                 fid.write("""
 PREC   = A
@@ -73,15 +68,17 @@ IBRION =-1
 ISMEAR =-5
 ISIF   = 2
 
-ENCUT  = 500.00000   # 1.5*(Max ENMAX)
-EDIFF  = %1.0e       ## 1e-6
+ENCUT  = %d
+EDIFF  = %1.0e
 NPAR   = %d
 
 LCHARG = .FALSE.
 LWAVE  = .FALSE.
 LELF   = .FALSE.
 LVTOT  = .FALSE.
-""" % (self._accuracy, self._npar))
+              """ % (self._encut,
+                     self._accuracy,
+                     self._npar))
                 fid.close()
 
         elif self.in_type == 'dftrelax' or self.in_type == 'relax':
@@ -100,14 +97,14 @@ NPAR   = %d
 """ % (self.nsw, self._accuracy, self._npar))
                 fid.close()
 
-        elif self.in_type == 'ab_md': 
+        elif self.in_type == 'ab_md':
             with open(fname, 'w') as fid:
                 fid.write("""
 PREC   = Med
-NSW    = {} 
-IBRION = 0      
-POTIM  = 0.5    
-ISIF   = 2     
+NSW    = {}
+IBRION = 0
+POTIM  = 0.5
+ISIF   = 2
 TEBEG  = {}
 TEEND  = {}
 SMASS  = 0
