@@ -92,6 +92,19 @@ ecutwfc = {},
             self.ecutwfc))
         return fid
 
+    def gn_infile_dipole_ideal_shear(self,
+                                     atoms=None):
+        with open('qe.in', 'w') as fid:
+            fid = self.qe_write_control(fid, atoms)
+            fid = self.qe_write_system(fid, atoms)
+            fid = self.qe_write_electrons(fid)
+            fid = self.qe_write_cell(fid, atoms.get_cell())
+            fid = self.qe_write_species(fid, atoms, self.pot)
+            fid = self.qe_write_pos(fid, atoms)
+            fid = self.qe_write_kpts(fid, (33, 33, 33))
+            fid.close()
+        return
+
     def qe_write_electrons(self, fid):
         fid.write("""&electrons
 conv_thr = {},
