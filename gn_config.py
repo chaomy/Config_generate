@@ -71,10 +71,14 @@ class gnStructure(object):
             for i in range(len(atoms)):
                 if ((i == fix_list).any()):
                     fid.write("%12.6f %12.6f %12.6f   T   T   F\n"
-                              % (positions[i, 0], positions[i, 1], positions[i, 2]))
+                              % (positions[i, 0],
+                                 positions[i, 1],
+                                 positions[i, 2]))
                 else:
                     fid.write("%12.6f %12.6f %12.6f   T   T   T\n"
-                              % (positions[i, 0], positions[i, 1], positions[i, 2]))
+                              % (positions[i, 0],
+                                 positions[i, 1],
+                                 positions[i, 2]))
             fid.close()
         os.system("cp POSCAR POSCAR.vasp")
         return
@@ -256,8 +260,8 @@ class add_strain(object):
         return
 
     def volumetric_strain(self, delta=None):
-        ###### c11 #####
-        if delta == None:
+        # 3c11 + 6C12 #
+        if delta is None:
             delta = self._delta
         strain = np.mat([[1 + delta, 0, 0],
                          [0, 1 + delta, 0],
@@ -265,7 +269,7 @@ class add_strain(object):
         return strain
 
     def volume_conserving_orthohombic(self, delta=None):
-        ###### c12 #####
+        # 2C11 - 2c12 #
         if delta is None:
             delta = self._delta
         strain = np.mat([[1 + delta, 0, 0],
@@ -274,7 +278,7 @@ class add_strain(object):
         return strain
 
     def volume_conserving_monoclinic(self, delta=None):
-        ###### c44 #####
+        # 2c44 #
         if delta is None:
             delta = self._delta
         strain = np.mat([[1, delta, 0],
@@ -309,7 +313,7 @@ class bcc(gnStructure, add_strain):
         self.set_bcc_primitive_direction()
         cell = self._primitive_directions * self._lattice_constant
         atoms.set_cell(cell, scale_atoms=True)
-        atoms = atoms.repeat(in_size)
+        # atoms = atoms.repeat(in_size)
         return atoms
 
     def write_bcc_primitive(self, in_size=None):
@@ -363,13 +367,15 @@ class bcc(gnStructure, add_strain):
                                         delta=None,
                                         in_tag=None,
                                         in_size=None,
+                                        strain=None,
                                         write=True):
-        if in_tag == 'ortho' or in_tag == 'c12':
-            strain = self.volume_conserving_orthohombic(delta)
-        elif in_tag == 'mono' or in_tag == 'c44':
-            strain = self.volume_conserving_monoclinic(delta)
-        elif in_tag == 'volume' or in_tag == 'c11':
-            strain = self.volumetric_strain(delta)
+        if strain is None:
+            if in_tag == 'ortho' or in_tag == 'c12':
+                strain = self.volume_conserving_orthohombic(delta)
+            elif in_tag == 'mono' or in_tag == 'c44':
+                strain = self.volume_conserving_monoclinic(delta)
+            elif in_tag == 'volume' or in_tag == 'c11':
+                strain = self.volumetric_strain(delta)
 
         atoms = self.set_bcc_primitive(in_size)
         org_cell = atoms.get_cell()
