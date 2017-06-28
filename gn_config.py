@@ -171,9 +171,6 @@ class gnStructure(object):
         positions = atoms.get_positions()
         atom_num = len(positions)
         cell = atoms.get_cell()
-        print "cell is "
-        print cell
-
         with open(filename, mode="w") as fout:
             fout.write("#lmp data config")
             fout.write("\n")
@@ -186,7 +183,6 @@ class gnStructure(object):
                        % (cell[1, 0],
                           cell[2, 0],
                           cell[2, 1]))
-
             fout.write("Atoms\n")
             fout.write("\n")
             for i in range(atom_num):
