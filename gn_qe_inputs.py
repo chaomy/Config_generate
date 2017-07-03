@@ -171,6 +171,8 @@ ion_dynamics='bfgs',
                     out.append('restart_mode = restart \n')
                 elif line.split()[0] == 'restart_mode':
                     out.append('restart_mode = restart \n')
+                elif line.split()[0] == 'conv_thr':
+                    out.append('conv_thr = 1.0D-11, \n')
                 else:
                     out.append(line)
         self.mwritelines(filename='qe.restart', raw=out)
