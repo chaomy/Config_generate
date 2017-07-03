@@ -25,6 +25,7 @@ class gn_qe_infile(object):
         self.pot = pot
         self.cal_type = 'scf'
         self.degauss = None
+
         # set defaults
         self.set_degauss()
         self.set_cal_prefix()
@@ -33,6 +34,7 @@ class gn_qe_infile(object):
         self.set_kpnts()
         self.set_disk_io()
         self.set_thr()
+        self.max_secs = None
         return
 
     def set_cal_type(self, caltype='scf'):
@@ -63,6 +65,10 @@ class gn_qe_infile(object):
         self.conv_thr = thr
         return
 
+    def set_maxseconds(self, maxsecs):
+        self.max_secs = maxsecs
+        return
+
     def qe_write_control(self, fid, atoms):
         fid.write("""&control
 calculation = {},
@@ -72,10 +78,14 @@ tprnfor = T
 outdir = 'results',
 pseudo_dir = './'
 disk_io = {}
-/
 """.format(self.cal_type,
            self.cal_prefix,
            self.diskinfo))
+
+        if self.max_secs is not None:
+            fid.write("""max_seconds = {}
+/
+""".format(self.max_secs))
         return fid
 
     def qe_write_system(self, fid, atoms):
@@ -102,8 +112,8 @@ ion_dynamics='bfgs',
 """.format(self.conv_thr))
         return fid
 
-    def gn_infile_dipole_ideal_shear(self,
-                                     atoms=None):
+    def gn_qe_scf(self,
+                  atoms=None):
         with open('qe.in', 'w') as fid:
             fid = self.qe_write_control(fid, atoms)
             fid = self.qe_write_system(fid, atoms)
@@ -150,3 +160,18 @@ ion_dynamics='bfgs',
         fid.write("{:d} {:d} {:d}  0  0  0\n".format(
             kpts[0], kpts[1], kpts[2]))
         return fid
+
+    def gn_qe_restart(self):
+        raw = self.mreadlines('qe.in')
+        out = []
+        for line in raw:
+            if line.strip():
+                if line.split()[0] == '&control':
+                    out.append(line)
+                    out.append('restart_mode = restart \n')
+                elif line.split()[0] == 'restart_mode':
+                    out.append('restart_mode = restart \n')
+                else:
+                    out.append(line)
+        self.mwritelines(filename='qe.restart', raw=out)
+        return
