@@ -175,5 +175,5 @@ ion_dynamics='bfgs',
                     out.append('conv_thr = 1.0D-11, \n')
                 else:
                     out.append(line)
-        self.mwritelines(filename='qe.restart', raw=out)
+        self.mwritelines(filename='qe.acc.in', raw=out)
         return
