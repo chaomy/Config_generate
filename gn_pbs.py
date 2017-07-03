@@ -89,7 +89,7 @@ class gn_pbs(object):
         if self.in_type == "va":
             print "assign_outfile"
             outfile = "va.pbs"
-        if od == True:
+        if od is True:
             flux_type = "fluxod"
         else:
             flux_type = "flux"
@@ -112,9 +112,12 @@ class gn_pbs(object):
 
 ####  End PBS preamble
 cd $PBS_O_WORKDIR
-%s
-""" % (self.job_title, self._nnodes, self._ppn, self._wall_time, flux_type,
-                flux_type, self.exe))
+""" % (self.job_title, self._nnodes, self._ppn,
+                self._wall_time, flux_type, flux_type))
+            if type(self.exe) is list:
+                fid.writelines(self.exe)
+            else:
+                fid.write("""{}""".format(self.exe))
             fid.close()
         return
 
