@@ -25,7 +25,6 @@ class gn_qe_infile(object):
         self.pot = pot
         self.cal_type = 'scf'
         self.degauss = None
-
         # set defaults
         self.set_degauss()
         self.set_cal_prefix()
