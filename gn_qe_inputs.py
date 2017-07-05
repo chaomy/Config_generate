@@ -85,6 +85,9 @@ disk_io = {}
             fid.write("""max_seconds = {}
 /
 """.format(self.max_secs))
+        else:
+            fid.write("""/
+""".format(self.max_secs))
         return fid
 
     def qe_write_system(self, fid, atoms):
