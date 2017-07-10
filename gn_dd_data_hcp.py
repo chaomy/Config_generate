@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-10 09:57:01
+# @Last Modified time: 2017-07-10 09:57:45
 
 
 import numpy as np
@@ -39,7 +39,7 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
 
     def gn_hcp_straight_dis(self):
         nnodes = self.ddata.nnodes
-        drv.set_cell()
+        self.set_cell()
         delta = (self.ddata.cell[0, 1] - self.ddata.cell[0, 0]) / nnodes
         idr = range(nnodes)
         idl = range(nnodes)
