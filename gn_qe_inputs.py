@@ -1,19 +1,10 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+# @Author: chaomy
+# @Date:   2017-06-25 14:28:58
+# @Last Modified by:   chaomy
+# @Last Modified time: 2017-07-06 23:51:38
 
-###################################################################
-#
-# File Name :
-#
-###################################################################
-#
-# Purpose :
-#
-# Creation Date :
-# Last Modified :
-# Created By    : Chaoming Yang
-#
-###################################################################
 
 import numpy as np
 
@@ -107,6 +98,17 @@ ecutwfc = {},
     def qe_write_electrons(self, fid):
         fid.write("""&electrons
 conv_thr = {},
+/
+&ions
+ion_dynamics='bfgs',
+/
+""".format(self.conv_thr))
+        return fid
+
+    def qe_write_electrons_tf(self, fid):
+        fid.write("""&electrons
+conv_thr = {},
+mixing_mode='local-TF',
 /
 &ions
 ion_dynamics='bfgs',
