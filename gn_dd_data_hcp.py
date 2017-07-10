@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-10 09:29:00
+# @Last Modified time: 2017-07-10 09:57:01
 
 
 import numpy as np
@@ -130,8 +130,3 @@ dataDecompGeometry = [
         fid = self.write_domain_data(fid)
         fid = self.write_nodal_data(nlist, fid)
         return
-
-
-if __name__ == '__main__':
-    drv = gn_dd_data_hcp()
-    drv.write_hcp_straight_data()
