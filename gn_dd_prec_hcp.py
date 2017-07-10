@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-10 09:39:43
+# @Last Modified time: 2017-07-10 09:40:09
 
 import numpy as np
 import gn_dd_data_dat as dddat
@@ -25,9 +25,7 @@ class gn_dd_prec():
     def set_prec_pos(self):
         self.precs = []
         for i in range(self.ddata.precn):
-            prec = ddata.prec 
-            prec.pos
-
+            prec = ddata.prec
             self.precs.append(dddat.prec)
         print self.precs
         return
