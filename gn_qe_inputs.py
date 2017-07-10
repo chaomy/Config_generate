@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-25 14:28:58
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-06 23:51:38
+# @Last Modified time: 2017-07-10 01:16:49
 
 
 import numpy as np
@@ -122,6 +122,19 @@ ion_dynamics='bfgs',
             fid = self.qe_write_control(fid, atoms)
             fid = self.qe_write_system(fid, atoms)
             fid = self.qe_write_electrons(fid)
+            fid = self.qe_write_cell(fid, atoms.get_cell())
+            fid = self.qe_write_species(fid, atoms, self.pot)
+            fid = self.qe_write_pos(fid, atoms)
+            fid = self.qe_write_kpts(fid)
+            fid.close()
+        return
+
+    def gn_qe_scf_tf(self,
+                     atoms=None):
+        with open('qe.in', 'w') as fid:
+            fid = self.qe_write_control(fid, atoms)
+            fid = self.qe_write_system(fid, atoms)
+            fid = self.qe_write_electrons_tf(fid)
             fid = self.qe_write_cell(fid, atoms.get_cell())
             fid = self.qe_write_species(fid, atoms, self.pot)
             fid = self.qe_write_pos(fid, atoms)
