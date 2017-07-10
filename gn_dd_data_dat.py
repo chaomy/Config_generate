@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-10 08:48:57
+# @Last Modified time: 2017-07-10 08:52:11
 
 
 class dd_dat:
@@ -31,7 +31,7 @@ class node(object):
 
 class prec(object):
     precid = None
-    axis = None
     coords = None
+    dimaxi = None
     rotate = None
     strain = None

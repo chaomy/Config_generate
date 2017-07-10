@@ -3,17 +3,18 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-10 00:46:03
+# @Last Modified time: 2017-07-10 09:20:54
 
 
 import numpy as np
-from itertools import cycle
 import gn_dd_data_dat as dddat
+import gn_dd_prec_hcp as gn_dd_data_hcp
 
 
-class gn_dd_data_hcp(object):
+class gn_dd_data_hcp(gn_dd_data_hcp.gn_dd_prec):
 
     def __init__(self):
+        self.gn_dd_data_hcp.gn_dd_prec.__init__(self)
         self.ddata = dddat.dd_dat
         self.ddata.nnodes = 6
         return
@@ -24,8 +25,8 @@ class gn_dd_data_hcp(object):
 
     def set_cell(self):
         cell = np.ndarray([3, 2])
-        cell[:, 0] = np.ones(3) * -1e3
-        cell[:, 1] = np.ones(3) * 1e3
+        cell[:, 0] = np.ones(3) * -2e3
+        cell[:, 1] = np.ones(3) * 2e3
         self.ddata.cell = cell
         return
 
@@ -106,8 +107,8 @@ dataDecompGeometry = [
                                                              arm.burg[1],
                                                              arm.burg[2]))
         fid.write("  	  {:8.7f} {:8.7f} {:8.7f}\n".format(arm.plane[0],
-                                                           arm.plane[1],
-                                                           arm.plane[2]))
+                                                          arm.plane[1],
+                                                          arm.plane[2]))
         return fid
 
     def write_nodal_data(self, nlist, fid):
