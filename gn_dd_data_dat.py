@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-10 08:52:11
+# @Last Modified time: 2017-07-10 09:31:08
 
 
 class dd_dat:
@@ -11,6 +11,7 @@ class dd_dat:
     cell = None
     nnodes = None
     datfilev = 5
+    precn = None
 
 
 class arm(object):

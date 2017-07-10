@@ -3,18 +3,18 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-10 09:20:54
+# @Last Modified time: 2017-07-10 09:29:00
 
 
 import numpy as np
 import gn_dd_data_dat as dddat
-import gn_dd_prec_hcp as gn_dd_data_hcp
+import gn_dd_prec_hcp as prec_hcp
 
 
-class gn_dd_data_hcp(gn_dd_data_hcp.gn_dd_prec):
+class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
 
     def __init__(self):
-        self.gn_dd_data_hcp.gn_dd_prec.__init__(self)
+        prec_hcp.gn_dd_prec.__init__(self)
         self.ddata = dddat.dd_dat
         self.ddata.nnodes = 6
         return
