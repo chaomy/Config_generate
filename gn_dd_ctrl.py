@@ -1,12 +1,15 @@
 #!/usr/local/bin/python
 # encoding: utf-8
-#
+
+
 import os
 
+
 class gn_dd_ctrl(object):
+
     def __init__(self):
 
-        return;
+        return
 
     def write_ctrl(self, screw_mob, edge_mob):
         with open("glide.ctrl", 'w') as fid:
@@ -72,5 +75,5 @@ writeVisitFreq =   20000
 writeVisitCounter =    0
 writeVisitSegments =   1
 writeVisitNodes =      1
-                    """%(screw_mob, edge_mob));
-        return;
+                    """ % (screw_mob, edge_mob))
+        return

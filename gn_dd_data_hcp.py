@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-10 09:57:45
+# @Last Modified time: 2017-07-14 00:02:17
 
 
 import numpy as np
@@ -16,17 +16,18 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
     def __init__(self):
         prec_hcp.gn_dd_prec.__init__(self)
         self.ddata = dddat.dd_dat
-        self.ddata.nnodes = 6
+        self.ddata.nnodes = 4
+        self.burgs = dddat.burgdf
         return
 
     def set_domid(self, domid=0):
         self.ddata.domid = domid
         return
 
-    def set_cell(self):
+    def set_cell(self, side=1e4):
         cell = np.ndarray([3, 2])
-        cell[:, 0] = np.ones(3) * -2e3
-        cell[:, 1] = np.ones(3) * 2e3
+        cell[:, 0] = np.ones(3) * -side
+        cell[:, 1] = np.ones(3) * side
         self.ddata.cell = cell
         return
 
@@ -37,16 +38,14 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
         arm.plane = plane
         return arm
 
-    def gn_hcp_straight_dis(self):
+    def gn_hcp_straight_dis(self, bkey='b2'):
         nnodes = self.ddata.nnodes
         self.set_cell()
-        delta = (self.ddata.cell[0, 1] - self.ddata.cell[0, 0]) / nnodes
+        delta = 0.5 * (self.ddata.cell[0, 1] - self.ddata.cell[0, 0]) / nnodes
         idr = range(nnodes)
         idl = range(nnodes)
         idr.append(idr.pop(0))
         idl.insert(0, idl.pop())
-        burgl = np.array([1. / 2., np.sqrt(3.) / 2., 0.0])
-        burgr = -np.array([1. / 2., np.sqrt(3.) / 2., 0.0])
         plane = np.array([0, 0, 1])
         nlist = []
 
@@ -55,11 +54,16 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
             node.domid = self.ddata.domid
             node.nodeid = i
             node.pos = np.zeros(3)
-            node.pos[0] = self.ddata.cell[0, 0] + i * delta
+            node.pos[0] = 500 + self.ddata.cell[0, 0] + i * delta
             node.narm = 2
-            node.arml = self.set_arm(lid, burgl, plane)
-            node.armr = self.set_arm(rid, burgr, plane)
+            node.arml = self.set_arm(lid,
+                                     self.burgs[bkey][0], plane)
+            node.armr = self.set_arm(rid,
+                                     -self.burgs[bkey][0], plane)
             nlist.append(node)
+            if i in [0, nnodes - 1]:
+                node.const = 7
+                node.narm = 1
         return nlist
 
     def write_data_head(self):
