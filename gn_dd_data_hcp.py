@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-14 00:02:17
+# @Last Modified time: 2017-07-19 11:34:33
 
 
 import numpy as np
@@ -17,7 +17,8 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
         prec_hcp.gn_dd_prec.__init__(self)
         self.ddata = dddat.dd_dat
         self.ddata.nnodes = 4
-        self.burgs = dddat.burgdf
+        self.burgs = dddat.hcpslip
+        self.bkey = 'b3'
         return
 
     def set_domid(self, domid=0):
@@ -38,16 +39,17 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
         arm.plane = plane
         return arm
 
-    def gn_hcp_straight_dis(self, bkey='b2'):
+    def gn_hcp_straight_dis(self):
         nnodes = self.ddata.nnodes
+        bkey = self.bkey
         self.set_cell()
         delta = 0.5 * (self.ddata.cell[0, 1] - self.ddata.cell[0, 0]) / nnodes
         idr = range(nnodes)
         idl = range(nnodes)
         idr.append(idr.pop(0))
         idl.insert(0, idl.pop())
-        plane = np.array([0, 0, 1])
         nlist = []
+        plane = self.burgs[bkey]['norms']['Ba']
 
         for i, lid, rid in zip(range(nnodes), idl, idr):
             node = dddat.node()
@@ -57,9 +59,9 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
             node.pos[0] = 500 + self.ddata.cell[0, 0] + i * delta
             node.narm = 2
             node.arml = self.set_arm(lid,
-                                     self.burgs[bkey][0], plane)
+                                     self.burgs[bkey]['b'], plane)
             node.armr = self.set_arm(rid,
-                                     -self.burgs[bkey][0], plane)
+                                     -self.burgs[bkey]['b'], plane)
             nlist.append(node)
             if i in [0, nnodes - 1]:
                 node.const = 7
@@ -128,9 +130,34 @@ dataDecompGeometry = [
             fid = self.write_arm_data(node.armr, fid)
         return fid
 
+    def write_nodal_data_end(self, nlist, fid):
+        fid.write("nodalData = \n")
+        fid.write("# Primary lines: node_tag, x, y, z, num_arms, constraint \n")
+        fid.write("# Secondary lines: arm_tag, burgx, burgy, burgz, nx, ny, nz\n")
+        for node in nlist:
+            fid.write("{},{} {} {} {} {} {}\n".format(node.domid,
+                                                      node.nodeid, node.pos[0],
+                                                      node.pos[1], node.pos[2],
+                                                      node.narm, node.const))
+            if node.nodeid in [0]:
+                fid = self.write_arm_data(node.armr, fid)
+            elif node.nodeid in [self.ddata.nnodes - 1]:
+                fid = self.write_arm_data(node.arml, fid)
+            else:
+                fid = self.write_arm_data(node.arml, fid)
+                fid = self.write_arm_data(node.armr, fid)
+        return fid
+
     def write_hcp_straight_data(self):
         nlist = self.gn_hcp_straight_dis()
         fid = self.write_data_head()
         fid = self.write_domain_data(fid)
         fid = self.write_nodal_data(nlist, fid)
+        return
+
+    def write_hcp_orawan_data(self):
+        nlist = self.gn_hcp_straight_dis()
+        fid = self.write_data_head()
+        fid = self.write_domain_data(fid)
+        fid = self.write_nodal_data_end(nlist, fid)
         return

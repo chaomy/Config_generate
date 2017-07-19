@@ -3,12 +3,11 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-13 23:24:50
+# @Last Modified time: 2017-07-19 14:11:50
 
 
 from numpy import sqrt
 import numpy as np
-import pandas as pd
 
 Mg = {'pois': 0.29,
       'shearModulus': 17,
@@ -41,20 +40,96 @@ plnsb4 = {
     'Pr': np.array([sqrt(3), 1., 0]),
     'PyI': np.array([sqrt(3) * c, -c, sqrt(3)]),
     'PyII': np.array([0, -2 * c, sqrt(3)]),
-    'sP': np.array([c, -sqrt(3) * c, 2])}
+    'sP': np.array([c, -sqrt(3) * c, 2])
+}
+
+plnsb5 = {
+
+}
+
+plnsb6 = {
+
+}
+
+plnsb7 = {
+
+}
+
+plnsb8 = {
+
+}
+
+plnsb9 = {
+
+}
+
+plnsb10 = {
+
+}
 
 
-hcpburgs = {'b1': [np.array([-1. / 2., sqrt(3) / 2., 0.]),
-                   plnsb1],
-            'b2': [np.array([1., 0., 0.]),
-                   plnsb2],
-            'b3': [np.array([1. / 2., sqrt(3.) / 2., 0.0]),
-                   plnsb3],
-            'b4': [np.array([-1. / 2., sqrt(3.) / 2., c]),
-                   plnsb4]}
-
-# df = pd.DataFrame(burgs1, index=('burger'), columns=burgcolm)
-burgdf = pd.DataFrame(hcpburgs)
+hcpslip = {
+    'b1': {
+        'b': np.array([-1. / 2., sqrt(3) / 2., 0.]),
+        'norms': plnsb1,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    },
+    'b2': {
+        'b': np.array([1., 0., 0.]),
+        'norms': plnsb2,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    },
+    'b3': {
+        'b': np.array([1. / 2., sqrt(3.) / 2., 0.0]),
+        'norms': plnsb3,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    },
+    'b4': {
+        'b': np.array([-1. / 2., sqrt(3.) / 2., c]),
+        'norms': plnsb4,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    },
+    'b5': {
+        'b': np.array([1., 0., c]),
+        'norms': plnsb5,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    },
+    'b6': {
+        'b': np.array([1. / 2., sqrt(3.) / 2., -c]),
+        'norms': plnsb6,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    },
+    'b7': {
+        'b': np.array([-1. / 2., sqrt(3) / 2., -c]),
+        'norms': plnsb7,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    },
+    'b8': {
+        'b': np.array([-1., 0., c]),
+        'norms': plnsb7,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    },
+    'b9': {
+        'b': np.array([-1. / 2., -sqrt(3) / 2., -c]),
+        'norms': plnsb7,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    },
+    'b10': {
+        'b': np.array([0., 0., c]),
+        'norms': plnsb7,
+        'flux': [None, None, None, None, None, None],
+        'density': [None]
+    }
+}
 
 
 class dd_dat:
