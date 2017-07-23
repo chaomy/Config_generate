@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-19 14:11:50
+# @Last Modified time: 2017-07-23 12:22:53
 
 
 from numpy import sqrt
@@ -19,7 +19,7 @@ plnsb1 = {
     'Ba': np.array([0, 0, 1]),
     'Pr': np.array([sqrt(3), 1, 0]),
     'PyI': np.array([sqrt(3) * c, c, -sqrt(3)]),
-    'PyII': np.array([sqrt(3), c, sqrt(3)])
+    'PyII': np.array([sqrt(3) * c, c, sqrt(3)])
 }
 
 plnsb2 = {
@@ -44,27 +44,44 @@ plnsb4 = {
 }
 
 plnsb5 = {
-
+    'Pr': np.array([sqrt(3), 1., 0]),
+    'PyI': np.array([sqrt(3) * c, c, sqrt(3)]),
+    'PyII': np.array([0, 2 * c, sqrt(3)]),
+    'sP': np.array([-c, sqrt(3) * c, 2])
 }
 
 plnsb6 = {
-
+    'Pr': np.array([0, 1, 0]),
+    'PyI': np.array([-sqrt(3) * c, c, sqrt(3)]),
+    'PyII': np.array([sqrt(3) * c, c, -sqrt(3)]),
+    'sP': np.array([c, 0, -1])
 }
 
 plnsb7 = {
-
+    'Pr': np.array([0, 1, 0]),
+    'PyI': np.array([sqrt(3) * c, -c, sqrt(3)]),
+    'PyII': np.array([sqrt(3) * c, c, sqrt(3)]),
+    'sP': np.array([c, 0, 1])
 }
 
 plnsb8 = {
-
+    'Pr': np.array([sqrt(3), -1, 0]),
+    'PyI': np.array([0, 2 * c, sqrt(3)]),
+    'PyII': np.array([sqrt(3) * c, c, sqrt(3)]),
+    'sP': np.array([c, sqrt(3) * c, 2])
 }
 
 plnsb9 = {
-
+    'Pr': np.array([sqrt(3), -1, 0.]),
+    'PyI': np.array([sqrt(3) * c, c, -sqrt(3)]),
+    'PyII': np.array([0, -2 * c, sqrt(3)]),
+    'sP': np.array([c, sqrt(3) * c, -2])
 }
 
 plnsb10 = {
-
+    'PrI': np.array([sqrt(3), 1., 0]),
+    'PrII': np.array([sqrt(3), -1, 0]),
+    'PrIII': np.array([0., 1., 0])
 }
 
 
@@ -94,31 +111,31 @@ hcpslip = {
         'density': [None]
     },
     'b5': {
-        'b': np.array([1., 0., c]),
+        'b': np.array([-1. / 2., sqrt(3.) / 2., -c]),
         'norms': plnsb5,
         'flux': [None, None, None, None, None, None],
         'density': [None]
     },
     'b6': {
-        'b': np.array([1. / 2., sqrt(3.) / 2., -c]),
+        'b': np.array([1., 0., c]),
         'norms': plnsb6,
         'flux': [None, None, None, None, None, None],
         'density': [None]
     },
     'b7': {
-        'b': np.array([-1. / 2., sqrt(3) / 2., -c]),
+        'b': np.array([-1, 0., c]),
         'norms': plnsb7,
         'flux': [None, None, None, None, None, None],
         'density': [None]
     },
     'b8': {
-        'b': np.array([-1., 0., c]),
+        'b': np.array([1. / 2., -sqrt(3) / 2., -c]),
         'norms': plnsb7,
         'flux': [None, None, None, None, None, None],
         'density': [None]
     },
     'b9': {
-        'b': np.array([-1. / 2., -sqrt(3) / 2., -c]),
+        'b': np.array([1. / 2., sqrt(3) / 2., c]),
         'norms': plnsb7,
         'flux': [None, None, None, None, None, None],
         'density': [None]

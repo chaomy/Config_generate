@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-13 20:27:31
+# @Last Modified time: 2017-07-23 13:07:30
 
 import numpy as np
 from numpy import cos, sin, pi
@@ -45,8 +45,8 @@ class gn_dd_prec(object):
         return A
 
     def set_prec_size(self):
-        lens = np.array([50, 150, 150]) * np.random.rand(3)
-        size = np.array([200, 800, 800]) + lens
+        lens = np.array([60, 0, 60]) * np.random.rand(3)
+        size = np.array([75, 3, 75]) + lens
         return size
 
     def set_prec_coords(self):

@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-19 15:14:57
+# @Last Modified time: 2017-07-23 13:09:50
 
 
 import numpy as np
@@ -21,15 +21,15 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec,
         self.ddata = dddat.dd_dat
         self.ddata.nnodes = 4
         self.burgs = dddat.hcpslip
-        self.bkey = 'b3'
-        self.pln = 'PyI'
+        self.bkey = 'b1'
+        self.pln = 'Ba'
         return
 
     def set_domid(self, domid=0):
         self.ddata.domid = domid
         return
 
-    def set_cell(self, side=1e4):
+    def set_cell(self, side=8e3):
         cell = np.ndarray([3, 2])
         cell[:, 0] = np.ones(3) * -side
         cell[:, 1] = np.ones(3) * side
@@ -47,7 +47,7 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec,
         nnodes = self.ddata.nnodes
         bkey = self.bkey
         self.set_cell()
-        delta = 0.5 * (self.ddata.cell[0, 1] - self.ddata.cell[0, 0]) / nnodes
+        delta = 0.7 * (self.ddata.cell[0, 1] - self.ddata.cell[0, 0]) / nnodes
         idr = range(nnodes)
         idl = range(nnodes)
         idr.append(idr.pop(0))
@@ -59,7 +59,9 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec,
             node.domid = self.ddata.domid
             node.nodeid = i
             node.pos = np.zeros(3)
-            node.pos[0] = 500 + self.ddata.cell[0, 0] + i * delta
+            node.pos[0] = \
+                0.15 * self.ddata.cell[0, 1] + \
+                self.ddata.cell[0, 0] + i * delta
             node.narm = 2
             node.arml = self.set_arm(lid,
                                      self.burgs[bkey]['b'], plane)
@@ -165,4 +167,3 @@ dataDecompGeometry = [
         fid = self.write_nodal_data_end(nlist, fid)
         self.cal_stress()
         return
-
