@@ -3,22 +3,26 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-19 11:34:33
+# @Last Modified time: 2017-07-19 15:14:57
 
 
 import numpy as np
 import gn_dd_data_dat as dddat
 import gn_dd_prec_hcp as prec_hcp
+import gn_dd_ctrl_stress
 
 
-class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
+class gn_dd_data_hcp(prec_hcp.gn_dd_prec,
+                     gn_dd_ctrl_stress.gn_dd_ctrl_stress):
 
     def __init__(self):
         prec_hcp.gn_dd_prec.__init__(self)
+        gn_dd_ctrl_stress.gn_dd_ctrl_stress.__init__(self)
         self.ddata = dddat.dd_dat
         self.ddata.nnodes = 4
         self.burgs = dddat.hcpslip
         self.bkey = 'b3'
+        self.pln = 'PyI'
         return
 
     def set_domid(self, domid=0):
@@ -49,8 +53,7 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec):
         idr.append(idr.pop(0))
         idl.insert(0, idl.pop())
         nlist = []
-        plane = self.burgs[bkey]['norms']['Ba']
-
+        plane = self.burgs[bkey]['norms']['PyI']
         for i, lid, rid in zip(range(nnodes), idl, idr):
             node = dddat.node()
             node.domid = self.ddata.domid
@@ -160,4 +163,6 @@ dataDecompGeometry = [
         fid = self.write_data_head()
         fid = self.write_domain_data(fid)
         fid = self.write_nodal_data_end(nlist, fid)
+        self.cal_stress()
         return
+

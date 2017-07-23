@@ -1,19 +1,10 @@
 #!/usr/bin/env python
-# encoding: utf-8
-#
-###################################################################
-#
-# File Name : ./gn_config.py
-#
-###################################################################
-#
-# Purpose :  generate configurations for LMP and VASP
-#
-# Creation Date :
-# Last Modified :
-# Created By    : Chaoming Yang
-#
-###################################################################
+# -*- coding: utf-8 -*-
+# @Author: chaomy
+# @Date:   2017-06-28 00:35:14
+# @Last Modified by:   chaomy
+# @Last Modified time: 2017-07-23 08:41:05
+
 
 import os
 import numpy as np
@@ -287,17 +278,16 @@ class bcc(gnStructure, add_strain):
 
     def __init__(self, pot=None):
         self.pot = pot
-        print self.pot
         gnStructure.__init__(self, self.pot)
         add_strain.__init__(self)
         self._lattice_constant = self.pot['latbcc']
-        self._element = pot['element']
+        self._element = self.pot['element']
         return
 
     def set_bcc_primitive_direction(self):
         self._primitive_directions = np.array([[-0.5, 0.5, 0.5],
                                                [0.5, -0.5, 0.5],
-                                               [0.5,  0.5, -0.5]])
+                                               [0.5, 0.5, -0.5]])
         return
 
     def set_bcc_primitive(self, in_size=(1, 1, 1)):
@@ -318,15 +308,15 @@ class bcc(gnStructure, add_strain):
         return
 
     def set_bcc_convention(self,
-                           in_direction=None,
-                           in_size=(1, 1, 1)):
+                           in_direction=None, in_size=(1, 1, 1)):
         if in_direction is None:
             in_direction = self._default_direction
         atoms = Cubic.BodyCenteredCubic(directions=in_direction,
-                                        latticeconstant=self._lattice_constant,
+                                        latticeconstant=self.pot['latbcc'],
                                         size=in_size,
                                         symbol=self._element,
                                         pbc=(1, 1, 1))
+        atoms.wrap()  # It's super important
         return atoms
 
     def write_bcc_convention(self, in_direction, in_size=(1, 1, 1)):

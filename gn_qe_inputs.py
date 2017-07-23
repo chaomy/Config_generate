@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-25 14:28:58
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-10 01:16:49
+# @Last Modified time: 2017-07-23 08:36:40
 
 
 import numpy as np
@@ -154,20 +154,26 @@ ion_dynamics='bfgs',
 
     def qe_write_species(self, fid, atoms, pot):
         fid.write("ATOMIC_SPECIES\n")
-        fid.write("{}  {}  {}\n".format(pot['element'],
-                                        pot['mass'],
-                                        pot['file']))
+        fid.write("{}  {}  {}\n".format(
+            pot['element'], pot['mass'], pot['file']))
         return fid
 
-    def qe_write_pos(self, fid, atoms):
+    def qe_write_pos_direct(self, fid, atoms):
         fid.write("ATOMIC_POSITIONS {alat}\n")
         sym = atoms.get_chemical_symbols()
         pos = atoms.get_scaled_positions()
         for i in range(len(pos)):
-            fid.write("{}  {}  {}  {}\n".format(sym[i],
-                                                pos[i, 0],
-                                                pos[i, 1],
-                                                pos[i, 2]))
+            fid.write("{}  {}  {}  {}\n".format(
+                sym[i], pos[i, 0], pos[i, 1], pos[i, 2]))
+        return fid
+
+    def qe_write_pos(self, fid, atoms):
+        fid.write("ATOMIC_POSITIONS {angstrom}\n")
+        sym = atoms.get_chemical_symbols()
+        pos = atoms.get_positions()
+        for i in range(len(pos)):
+            fid.write("{}  {}  {}  {}\n".format(
+                sym[i], pos[i, 0], pos[i, 1], pos[i, 2]))
         return fid
 
     def qe_write_kpts(self, fid, kpts=None):
