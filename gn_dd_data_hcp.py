@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-23 15:06:04
+# @Last Modified time: 2017-07-27 14:24:45
 
 
 import numpy as np
@@ -23,7 +23,7 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
         gn_dd_load.gn_dd_load.__init__(self)
         gn_dd_ctrl.gn_dd_ctrl.__init__(self)
         self.ddata = dddat.dd_dat
-        self.ddata.nnodes = 4
+        self.ddata.nnodes = 4 
         self.burgs = dddat.hcpslip
         self.bkey = 'b1'
         self.pln = 'Ba'
@@ -52,7 +52,9 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
         nnodes = self.ddata.nnodes
         bkey = self.bkey
         self.set_cell()
-        delta = 0.7 * (self.ddata.cell[0, 1] - self.ddata.cell[0, 0]) / nnodes
+        length = (self.ddata.cell[0, 1] - self.ddata.cell[0, 0])
+        disl = 0.2 * length
+        delta = disl / (nnodes - 1)
         idr = range(nnodes)
         idl = range(nnodes)
         idr.append(idr.pop(0))
@@ -65,8 +67,7 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
             node.nodeid = i
             node.pos = np.zeros(3)
             node.pos[0] = \
-                0.15 * self.ddata.cell[0, 1] + \
-                self.ddata.cell[0, 0] + i * delta
+                -0.5 * disl + i * delta
             node.narm = 2
             node.arml = self.set_arm(lid,
                                      self.burgs[bkey]['b'], plane)

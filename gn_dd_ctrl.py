@@ -3,10 +3,10 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-23 15:43:59
+# @Last Modified time: 2017-07-27 14:16:42
 
 
-hcp_mobility = {
+hcp_a_mobility = {
     "HCP_A_Basal_EdgeDrag": 1.18434387898773e-04,
     "HCP_A_Basal_ScrewDrag": 1.65421659553579e-04,
     "HCP_A_Prismatic_EdgeDrag": 5.69513923115224e-05,
@@ -15,6 +15,8 @@ hcp_mobility = {
     "HCP_A_1stPyramidal_ScrewDrag": 1.05154866364405e-04,
     "HCP_A_2ndPyramidal_EdgeDrag": 7.28268834977848e-05,
     "HCP_A_2ndPyramidal_ScrewDrag": 1.05154866364405e-04,
+}
+hcp_apc_mobility = {
     # Assumed 20 times basal edge
     "HCP_CpA_Prismatic_EdgeDrag": 2.36868775797546e-03,
     "HCP_CpA_Prismatic_ScrewDrag": 2.36868775797546e-03,
@@ -22,6 +24,8 @@ hcp_mobility = {
     "HCP_CpA_1stPyramidal_ScrewDrag": 2.36868775797546e-03,
     "HCP_CpA_2ndPyramidal_EdgeDrag": 2.36868775797546e-03,
     "HCP_CpA_2ndPyramidal_ScrewDrag": 2.36868775797546e-03,
+}
+hcp_c_mobility = {
     "HCP_C_Prismatic_EdgeDrag": 2.36868775797546e-03,
     "HCP_C_Prismatic_ScrewDrag": 2.36868775797546e-03,
     "HCP_Sessile_ScrewDrag": 23.6868,  # 10000 * pyramidal
@@ -111,6 +115,8 @@ class gn_dd_ctrl(object):
     def __init__(self):
         self.ctrlfile = '{}.ctrl'.format(self.job)
         self.divisionline = '\n # ------------------------------------- #\n'
+        self.fmat = "{:30} = {:18}\n"
+        self.space = "\n"
         return
 
     def set_fname(self, jobid):
@@ -124,8 +130,15 @@ class gn_dd_ctrl(object):
         return
 
     def write_hcp_mobility(self, fid):
-        for key in hcp_mobility:
-            fid.write("{} = {}\n".format(key, hcp_mobility[key]))
+        for key in hcp_a_mobility:
+            fid.write(self.fmat.format(key, hcp_a_mobility[key]))
+        fid.write(self.space)
+        for key in hcp_apc_mobility:
+            fid.write(self.fmat.format(key, hcp_apc_mobility[key]))
+        fid.write(self.space)
+        for key in hcp_c_mobility:
+            fid.write(self.fmat.format(key, hcp_c_mobility[key]))
+        fid.write(self.space)
         return fid
 
     def write_loading(self, fid, opt='stress'):
@@ -133,7 +146,7 @@ class gn_dd_ctrl(object):
         if opt in ['stress']:
             key = 'appliedStress'
             stress = self.cal_stress(scale=2e7)
-            fid.write('{} = '.format(key))
+            fid.write('{:30} = '.format(key))
             fid.write('[{} {} {} {} {} {}]\n'.format(
                 stress[0], stress[1], stress[2],
                 stress[3], stress[4], stress[5]
@@ -154,7 +167,7 @@ class gn_dd_ctrl(object):
         for ctrl in settings:
             fid.write(self.divisionline)
             for key in ctrl:
-                fid.write("{} = {}\n".format(key, ctrl[key]))
+                fid.write(self.fmat.format(key, ctrl[key]))
         return fid
 
     def write_ctrl_file(self):

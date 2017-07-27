@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-23 14:57:49
+# @Last Modified time: 2017-07-27 14:12:53
 
 import numpy as np
 from numpy import cos, sin, pi
@@ -18,8 +18,12 @@ class gn_dd_prec(object):
         self.precfile = '{}.dat'.format(self.job)
         return
 
+    def given_vol_frac(self):
+
+        return
+
     def inplane_hcp_beta1_prec(self):
-        self.ddata.precn = 30
+        self.ddata.precn = 72 
         self.set_cell()
         self.set_prec()
         fid = self.write_precip_header()
@@ -43,11 +47,12 @@ class gn_dd_prec(object):
                     [-sin(psi), cos(psi), 0.],
                     [0., 0., 1.]])
         A = B * C * D
-        return A
+        print "rotata", phi, A
+        return  A
 
     def set_prec_size(self):
-        lens = np.array([60, 0, 60]) * np.random.rand(3)
-        size = np.array([75, 3, 75]) + lens
+        lens = np.array([40, 2, 40]) * np.random.rand(3)
+        size = np.array([603, 30, 603]) + lens
         return size
 
     def set_prec_coords(self):
@@ -69,7 +74,7 @@ class gn_dd_prec(object):
             if i % 3 == 0:
                 prec.rotate = self.set_prec_rotate((pi / 3., 0., 0.))
             elif i % 3 == 1:
-                prec.rotate = self.set_prec_rotate((-pi / 3., 0., 0.))
+                prec.rotate = self.set_prec_rotate((pi * 2./ 3., 0., 0.))
             elif i % 3 == 2:
                 prec.rotate = self.set_prec_rotate((0., 0., 0.))
             prec.strain = self.set_prec_strain()
