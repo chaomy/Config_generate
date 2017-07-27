@@ -3,26 +3,31 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-23 13:09:50
+# @Last Modified time: 2017-07-23 15:06:04
 
 
 import numpy as np
 import gn_dd_data_dat as dddat
-import gn_dd_prec_hcp as prec_hcp
-import gn_dd_ctrl_stress
+import gn_dd_load
+import gn_dd_ctrl
+import gn_dd_prec
 
 
-class gn_dd_data_hcp(prec_hcp.gn_dd_prec,
-                     gn_dd_ctrl_stress.gn_dd_ctrl_stress):
+class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
+                     gn_dd_load.gn_dd_load,
+                     gn_dd_ctrl.gn_dd_ctrl):
 
     def __init__(self):
-        prec_hcp.gn_dd_prec.__init__(self)
-        gn_dd_ctrl_stress.gn_dd_ctrl_stress.__init__(self)
+        self.job = 'paradis'
+        gn_dd_prec.gn_dd_prec.__init__(self)
+        gn_dd_load.gn_dd_load.__init__(self)
+        gn_dd_ctrl.gn_dd_ctrl.__init__(self)
         self.ddata = dddat.dd_dat
         self.ddata.nnodes = 4
         self.burgs = dddat.hcpslip
         self.bkey = 'b1'
         self.pln = 'Ba'
+        self.datafile = '{}.data'.format(self.job)
         return
 
     def set_domid(self, domid=0):
@@ -76,7 +81,7 @@ class gn_dd_data_hcp(prec_hcp.gn_dd_prec,
     def write_data_head(self):
         cell = self.ddata.cell
         nnodes = self.ddata.nnodes
-        fid = open('paradis.data', 'w')
+        fid = open(self.datafile, 'w')
         fid.write(""" dataFileVersion =   5
 numFileSegments =   1
 minCoordinates = [
@@ -161,9 +166,17 @@ dataDecompGeometry = [
         return
 
     def write_hcp_orawan_data(self):
+        self.set_fname('hcp')
+
+        # write ctrl file
+        self.write_ctrl_file()
+
+        # write data file
         nlist = self.gn_hcp_straight_dis()
         fid = self.write_data_head()
         fid = self.write_domain_data(fid)
         fid = self.write_nodal_data_end(nlist, fid)
-        self.cal_stress()
+
+        # write preicpitates
+        self.inplane_hcp_beta1_prec()
         return
