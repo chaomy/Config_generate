@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-23 15:02:39
+# @Last Modified time: 2017-07-27 14:55:53
 
 
 from optparse import OptionParser
@@ -21,5 +21,6 @@ if __name__ == '__main__':
     drv = gn_dd_data_hcp.gn_dd_data_hcp()
     dispatcher = {'hcpdata': drv.write_hcp_straight_data,
                   'hcporowan': drv.write_hcp_orawan_data,
-                  'hcpprec': drv.inplane_hcp_beta1_prec}
+                  'hcpprec': drv.inplane_hcp_beta1_prec,
+                  'hcpten': drv.write_hcp_tensile_data}
     dispatcher[options.mtype.lower()]()

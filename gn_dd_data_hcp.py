@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-27 14:24:45
+# @Last Modified time: 2017-07-27 17:01:04
 
 
 import numpy as np
@@ -23,7 +23,7 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
         gn_dd_load.gn_dd_load.__init__(self)
         gn_dd_ctrl.gn_dd_ctrl.__init__(self)
         self.ddata = dddat.dd_dat
-        self.ddata.nnodes = 4 
+        self.ddata.nnodes = 4
         self.burgs = dddat.hcpslip
         self.bkey = 'b1'
         self.pln = 'Ba'
@@ -34,11 +34,17 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
         self.ddata.domid = domid
         return
 
-    def set_cell(self, side=8e3):
+    def set_cell(self, side=9e3):
         cell = np.ndarray([3, 2])
         cell[:, 0] = np.ones(3) * -side
         cell[:, 1] = np.ones(3) * side
         self.ddata.cell = cell
+        self.cal_cell_vol()
+        return
+
+    def cal_cell_vol(self):
+        cell = self.ddata.cell
+        self.ddata.cellvol = np.prod(cell[:, 1] - cell[:, 0])
         return
 
     def set_arm(self, armid, burg, plane):
@@ -180,4 +186,11 @@ dataDecompGeometry = [
 
         # write preicpitates
         self.inplane_hcp_beta1_prec()
+        return
+
+    def write_hcp_tensile_data(self):
+        self.set_fname('mgprec')
+        # write ctrl file
+        self.write_ctrl_file()
+        self.hcp_beta1_prec()
         return

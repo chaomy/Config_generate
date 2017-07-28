@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-23 12:22:53
+# @Last Modified time: 2017-07-27 14:45:12
 
 
 from numpy import sqrt
@@ -152,6 +152,7 @@ hcpslip = {
 class dd_dat:
     domid = 0
     cell = None
+    cellvol = None
     nnodes = None
     datfilev = 5
     precn = None

@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-27 14:16:42
+# @Last Modified time: 2017-07-27 20:31:25
 
 
 hcp_a_mobility = {
@@ -114,7 +114,7 @@ class gn_dd_ctrl(object):
 
     def __init__(self):
         self.ctrlfile = '{}.ctrl'.format(self.job)
-        self.divisionline = '\n # ------------------------------------- #\n'
+        self.divisionline = '\n# ---------------------------------------------- #\n\n'
         self.fmat = "{:30} = {:18}\n"
         self.space = "\n"
         return
@@ -145,7 +145,7 @@ class gn_dd_ctrl(object):
         fid.write(self.divisionline)
         if opt in ['stress']:
             key = 'appliedStress'
-            stress = self.cal_stress(scale=2e7)
+            stress = self.cal_stress(scale=1e8)
             fid.write('{:30} = '.format(key))
             fid.write('[{} {} {} {} {} {}]\n'.format(
                 stress[0], stress[1], stress[2],
