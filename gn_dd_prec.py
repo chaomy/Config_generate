@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-27 17:01:21
+# @Last Modified time: 2017-07-27 20:35:04
 
 import numpy as np
 from numpy import cos, sin, pi
@@ -33,7 +33,7 @@ class gn_dd_prec(object):
 
     # precipiates in signle basal plane
     def inplane_hcp_beta1_prec(self):
-        self.ddata.precn = 72
+        self.ddata.precn = 66
         self.set_cell()
         self.set_inplane_prec()
         fid = self.write_precip_header()
