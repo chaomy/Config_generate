@@ -1,19 +1,10 @@
 #!/usr/bin/env python
-# encoding: utf-8
-#
-###################################################################
-#
-# File Name : ./gn_pbs.py
-#
-###################################################################
-#
-# Purpose :     generate the  pbs file
-#
-# Creation Date :
-# Last Modified : Sat Apr  1 23:15:50 2017
-# Created By    : Chaoming Yang
-#
-###################################################################
+# -*- coding: utf-8 -*-
+# @Author: chaomy
+# @Date:   2017-06-28 00:35:14
+# @Last Modified by:   chaomy
+# @Last Modified time: 2017-07-28 23:00:54
+
 import os
 
 
@@ -102,7 +93,7 @@ class gn_pbs(object):
 #PBS -M chaomy@umich.edu
 #PBS -m e
 
-#PBS -l nodes=%d:ppn=%d:ib,pmem=2gb,walltime=%d:00:00
+#PBS -l nodes=%d:ppn=%d:ib,pmem=2gb,walltime=%d:40:00
 #PBS -j oe
 #PBS -V
 
