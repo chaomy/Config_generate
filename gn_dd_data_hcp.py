@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-27 17:01:04
+# @Last Modified time: 2017-07-28 16:43:48
 
 
 import numpy as np
@@ -191,6 +191,6 @@ dataDecompGeometry = [
     def write_hcp_tensile_data(self):
         self.set_fname('mgprec')
         # write ctrl file
-        self.write_ctrl_file()
+        self.write_ctrl_file(ltype='strain')
         self.hcp_beta1_prec()
         return

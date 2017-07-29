@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-27 20:35:04
+# @Last Modified time: 2017-07-28 16:42:58
 
 import numpy as np
 from numpy import cos, sin, pi
@@ -17,7 +17,7 @@ class gn_dd_prec(object):
         self.precfile = '{}.dat'.format(self.job)
         return
 
-    def set_num_prec(self, volfrac=0.2):
+    def set_num_prec(self, volfrac=0.16):
         vol0 = volfrac * self.ddata.cellvol
         print vol0
         volsum = 0.0
@@ -90,7 +90,7 @@ class gn_dd_prec(object):
         pos[2] = 0.0
         return pos
 
-    def set_3d_prec(self, volfrac=0.1):
+    def set_3d_prec(self, volfrac=0.016):
         self.precs = []
         vol0 = volfrac * self.ddata.cellvol
         volsum = 0.0
