@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-28 16:42:58
+# @Last Modified time: 2017-07-31 17:17:45
 
 import numpy as np
 from numpy import cos, sin, pi
@@ -143,9 +143,30 @@ class gn_dd_prec(object):
         fid.write(dddat.precfile_header)
         return fid
 
+    # def write_precip_data(self, fid):
+    #     strformat = '{} ' + '{:4.2f} ' * (3 * 6) + '\n'
+    #     prec = self.precs[1]
+    #     for prec in self.precs:
+    #         line = strformat.format(
+    #             prec.precid,
+    #             prec.coords[0], prec.coords[1], prec.coords[2],
+    #             prec.dimaxi[0], prec.dimaxi[1], prec.dimaxi[2],
+    #             prec.rotate[0, 0], prec.rotate[0, 1],
+    #             prec.rotate[0, 2], prec.rotate[1, 0],
+    #             prec.rotate[1, 1], prec.rotate[1, 2],
+    #             prec.strain[0], prec.strain[1],
+    #             prec.strain[2], prec.strain[3],
+    #             prec.strain[4], prec.strain[5])
+    #         fid.write(line)
+    #     fid.close()
+    #     return
+
     def write_precip_data(self, fid):
-        strformat = '{} ' + '{:4.2f} ' * (3 * 6) + '\n'
-        prec = self.precs[1]
+        # strformat = '{} ' + '{:7.6f} ' * (3 * 6) + '\n'
+        strformat = '{} ' + '{:4.3f} ' * 6
+        strformat += '{:8.7f} ' * 6
+        strformat += '{:1.1f} ' * 6
+        strformat += '\n'
         for prec in self.precs:
             line = strformat.format(
                 prec.precid,

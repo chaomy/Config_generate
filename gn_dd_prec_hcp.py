@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-23 14:57:49
+# @Last Modified time: 2017-07-31 16:34:15
 
 import numpy as np
 from numpy import cos, sin, pi
@@ -84,8 +84,11 @@ class gn_dd_prec(object):
         return fid
 
     def write_precip_data(self, fid):
-        strformat = '{} ' + '{:4.2f} ' * (3 * 6) + '\n'
-        prec = self.precs[1]
+        # strformat = '{} ' + '{:7.6f} ' * (3 * 6) + '\n'
+        strformat = '{} ' + '{:4.3f} ' * 6 
+        strformat += '{:6.5f} ' * 6 
+        strformat += '{:2.1f} ' * 6
+        strformat += '\n'
         for prec in self.precs:
             line = strformat.format(
                 prec.precid,
