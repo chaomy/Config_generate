@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-28 23:00:54
+# @Last Modified time: 2017-08-14 20:28:13
 
 import os
 
@@ -93,7 +93,7 @@ class gn_pbs(object):
 #PBS -M chaomy@umich.edu
 #PBS -m e
 
-#PBS -l nodes=%d:ppn=%d:ib,pmem=2gb,walltime=%d:40:00
+#PBS -l nodes=%d:ppn=%d:ib,pmem=2gb,walltime=%d:00:00
 #PBS -j oe
 #PBS -V
 
