@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-23 08:41:05
+# @Last Modified time: 2017-08-17 22:27:30
 
 
 import os
@@ -152,33 +152,30 @@ class gnStructure(object):
         out_cell[2, 0], out_cell[2, 1], out_cell[2, 2] = cx, cy, cz
         return out_cell
 
-    #################################################################
-    # Sun Mar 26 13:00:28 2017
-    #################################################################
-    def write_lmp_config_data(self,
-                              atoms,
-                              filename="lmp_init.txt"):
-
+    def write_lmp_config_data(self, atoms, filename="lmp_init.txt"):
         positions = atoms.get_positions()
         atom_num = len(positions)
         cell = atoms.get_cell()
+        allsymbos = atoms.get_chemical_symbols()
+        symbols = np.unique(allsymbos)
+        print symbols
         with open(filename, mode="w") as fout:
             fout.write("#lmp data config")
             fout.write("\n")
             fout.write("%d atoms\n" % (atom_num))
-            fout.write("1 atom types\n")
+            fout.write("{} atom types\n".format(len(symbols)))
             fout.write("%f\t%f xlo xhi\n" % (0, cell[0, 0]))
             fout.write("%f\t%f ylo yhi\n" % (0, cell[1, 1]))
             fout.write("%f\t%f zlo zhi\n" % (0, cell[2, 2]))
             fout.write("%f  %f  %f xy xz yz\n"
-                       % (cell[1, 0],
-                          cell[2, 0],
-                          cell[2, 1]))
+                       % (cell[1, 0], cell[2, 0], cell[2, 1]))
             fout.write("Atoms\n")
             fout.write("\n")
             for i in range(atom_num):
-                fout.write("%d  1  %12.7f %12.7f %12.7f\n"
-                           % (i + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
+                for k in range(len(symbols)):
+                    if allsymbos[i] == symbols[k]:
+                        fout.write("%d %d %12.7f %12.7f %12.7f\n"
+                                   % (i + 1, k + 1,  positions[i, 0], positions[i, 1], positions[i, 2]))
         fout.close()
         return
 
@@ -316,7 +313,7 @@ class bcc(gnStructure, add_strain):
                                         size=in_size,
                                         symbol=self._element,
                                         pbc=(1, 1, 1))
-        atoms.wrap()  # It's super important
+        atoms.wrap()  # It's important
         return atoms
 
     def write_bcc_convention(self, in_direction, in_size=(1, 1, 1)):

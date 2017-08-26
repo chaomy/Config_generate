@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-25 14:28:58
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-23 08:36:40
+# @Last Modified time: 2017-08-26 01:09:37
 
 
 import numpy as np
@@ -31,7 +31,7 @@ class gn_qe_infile(object):
         self.cal_type = caltype
         return
 
-    def set_disk_io(self, diskinfo='low'):
+    def set_disk_io(self, diskinfo='none'):
         self.diskinfo = diskinfo
         return
 

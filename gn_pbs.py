@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-08-14 20:28:13
+# @Last Modified time: 2017-08-14 20:28:34
 
 import os
 
@@ -60,7 +60,6 @@ class gn_pbs(object):
         return
 
     def get_job_name(self):
-        # try join
         list = ["A", "B", "C"]
         jobname = '-'.join(list)
         print jobname
