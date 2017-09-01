@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-25 14:28:58
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-08-26 01:09:37
+# @Last Modified time: 2017-08-31 21:55:25
 
 
 import numpy as np
@@ -129,8 +129,7 @@ ion_dynamics='bfgs',
             fid.close()
         return
 
-    def gn_qe_scf_tf(self,
-                     atoms=None):
+    def gn_qe_scf_tf(self, atoms=None):
         with open('qe.in', 'w') as fid:
             fid = self.qe_write_control(fid, atoms)
             fid = self.qe_write_system(fid, atoms)
@@ -138,6 +137,18 @@ ion_dynamics='bfgs',
             fid = self.qe_write_cell(fid, atoms.get_cell())
             fid = self.qe_write_species(fid, atoms, self.pot)
             fid = self.qe_write_pos(fid, atoms)
+            fid = self.qe_write_kpts(fid)
+            fid.close()
+        return
+
+    def gn_qe_relax_tf(self, atoms=None):
+        with open('qe.in', 'w') as fid:
+            fid = self.qe_write_control(fid, atoms)
+            fid = self.qe_write_system(fid, atoms)
+            fid = self.qe_write_electrons_tf(fid)
+            fid = self.qe_write_cell(fid, atoms.get_cell())
+            fid = self.qe_write_species(fid, atoms, self.pot)
+            fid = self.qe_write_pos_fix_xy(fid, atoms)
             fid = self.qe_write_kpts(fid)
             fid.close()
         return
@@ -173,6 +184,15 @@ ion_dynamics='bfgs',
         pos = atoms.get_positions()
         for i in range(len(pos)):
             fid.write("{}  {}  {}  {}\n".format(
+                sym[i], pos[i, 0], pos[i, 1], pos[i, 2]))
+        return fid
+
+    def qe_write_pos_fix_xy(self, fid, atoms):
+        fid.write("ATOMIC_POSITIONS {angstrom}\n")
+        sym = atoms.get_chemical_symbols()
+        pos = atoms.get_positions()
+        for i in range(len(pos)):
+            fid.write("{}  {}  {}  {}   0   0   1\n".format(
                 sym[i], pos[i, 0], pos[i, 1], pos[i, 2]))
         return fid
 

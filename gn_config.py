@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-08-17 22:27:30
+# @Last Modified time: 2017-08-30 11:39:35
 
 
 import os
@@ -26,7 +26,6 @@ class gnStructure(object):
                                    [0, 1, 0],
                                    [0, 0, 1]]
 
-        print pot
         self._default_size = (5, 5, 5)
         self._config_file_format = 'vasp'
         self._lattice_constant = pot['lattice']
