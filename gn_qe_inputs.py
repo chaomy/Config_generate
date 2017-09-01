@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-25 14:28:58
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-08-31 22:55:28
+# @Last Modified time: 2017-08-31 23:18:12
 
 
 import numpy as np
@@ -141,7 +141,7 @@ ion_dynamics='bfgs',
             fid.close()
         return
 
-    def gn_qe_relax_tf(self, atoms=None, mtype='xy'):
+    def gn_qe_relax_tf(self, atoms=None, mtype=None):
         with open('qe.in', 'w') as fid:
             fid = self.qe_write_control(fid, atoms)
             fid = self.qe_write_system(fid, atoms)
