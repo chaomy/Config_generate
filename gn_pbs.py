@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-08-14 20:28:34
+# @Last Modified time: 2017-09-20 00:39:37
 
 import os
 
@@ -75,10 +75,8 @@ class gn_pbs(object):
             os.system("mv {} {}".format(filename, dirname))
         return
 
-    def write_pbs(self, od=None):
-        if self.in_type == "va":
-            print "assign_outfile"
-            outfile = "va.pbs"
+    def write_pbs(self, od=False):
+        outfile = "va.pbs"
         if od is True:
             flux_type = "fluxod"
         else:

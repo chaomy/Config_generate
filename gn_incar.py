@@ -1,20 +1,8 @@
-#!/usr/bin/env python
-# encoding: utf-8
-#
-###################################################################
-#
-# File Name : ./cal_vasp_cij.py
-#
-###################################################################
-#
-# Purpose :  generate the incar for vasp
-# write_incar
-#
-# Creation Date :
-# Last Modified : Sat Apr  1 23:15:50 2017
-# Created By    : Chaoming Yang
-#
-###################################################################
+# -*- coding: utf-8 -*-
+# @Author: chaomy
+# @Date:   2017-07-09 16:05:24
+# @Last Modified by:   chaomy
+# @Last Modified time: 2017-09-20 14:46:51
 
 
 class gn_incar(object):
@@ -28,6 +16,13 @@ class gn_incar(object):
         self._enaug = 550
         self._npar = 4
         self._ibrion = 2
+
+        self.set = """
+LCHARG = .FALSE.
+LWAVE  = .FALSE.
+LELF   = .FALSE.
+LVTOT  = .FALSE.
+        """
         return
 
     def set_nsw(self, nsw):
@@ -68,33 +63,41 @@ IBRION =-1
 ISMEAR =-5
 ISIF   = 2
 
-ENCUT  = %d
-EDIFF  = %1.0e
-NPAR   = %d
-
-LCHARG = .FALSE.
-LWAVE  = .FALSE.
-LELF   = .FALSE.
-LVTOT  = .FALSE.
-              """ % (self._encut,
-                     self._accuracy,
-                     self._npar))
+ENCUT  = {:d}
+EDIFF  = {:1.0e}
+NPAR   = {:d}
+{}
+              """.format(self._encut,
+                         self._accuracy,
+                         self._npar,
+                         self.set))
                 fid.close()
+
+        elif self.in_type in ['isif4']:
+            with open(fname, 'w') as fid:
+                fid.write("""
+PREC   = A
+NSW    = 100
+IBRION = 2
+ISIF   = 4
+
+ISMEAR = 1
+ENCUT  = 350.0
+EDIFF  = 1e-05
+NPAR   = 4
+{}
+                    """.format(self.set))
 
         elif self.in_type == 'dftrelax' or self.in_type == 'relax':
             with open(fname, 'w') as fid:
                 fid.write("""
-NSW    = %d
+NSW    = 100
 IBRION = 2
 ISIF   = 2
 ISMEAR = 1
-
-LELF   = .FALSE.
-LCHARG = .FALSE.
-LWAVE  = .FALSE.
-LVTOT  = .FALSE.
-NPAR   = %d
-""" % (self.nsw, self._accuracy, self._npar))
+NPAR   = 4
+{}
+""" .format(self.set))
                 fid.close()
 
         elif self.in_type == 'ab_md':
@@ -112,14 +115,9 @@ SMASS  = 0
 ISMEAR = 1
 EDIFF  = 1e-2
 NPAR   = 4
-
-LELF   = .FALSE.
-LCHARG = .FALSE.
-LWAVE  = .FALSE.
-LVTOT  = .FALSE.
-                         """ % (self.nsw,
-                                self._ab_md_temp,
-                                self._ab_md_temp))
+                         """.format(self.nsw,
+                                    self._ab_md_temp,
+                                    self._ab_md_temp))
                 fid.close()
 
         elif self.in_type == 'phonon':
@@ -142,13 +140,10 @@ LREAL  = .FALSE.
 ISPIN  = 1
 ENCUT  = 400
 EDIFF  = 1e-8
-ADDGRID = .TRUE.
-LWAVE  = .FALSE.
-LCHARG = .FALSE.
-LVTOT  = .FALSE.
 NELM   = 400
 NBANDS = 118
-""")
+{}
+""".format(self.set))
                 fid.close()
         return
 

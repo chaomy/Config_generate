@@ -1,21 +1,13 @@
 #!/usr/bin/env python
-# encoding: utf-8
-#
-###################################################################
-#
-# File Name : ./gn_lmp_infile.py
-#
-###################################################################
-#
-# Purpose :
-#
-# Creation Date :
-# Last Modified : Sun Mar 26 22:51:40 2017
-# Created By    : Chaoming Yang
-#
-###################################################################
+# -*- coding: utf-8 -*-
+# @Author: chaomy
+# @Date:   2017-06-28 00:35:14
+# @Last Modified by:   chaomy
+# @Last Modified time: 2017-09-20 00:35:19
+
 
 import os
+
 
 class size:
     xdim = None
@@ -30,6 +22,7 @@ class gb_param:
 
 
 class gn_md_infile(object):
+
     def __init__(self, inpot=None, **kwargs):
         self.pot = inpot
         self.config_file = None

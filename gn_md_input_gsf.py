@@ -1,32 +1,18 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
-###################################################################
-#
-# File Name : gn_md_input_gsf.py
-#
-###################################################################
-#
-# Purpose :
-#
-# Creation Date :
-# Last Modified : Mon Apr 24 12:56:42 2017
-# Created By    : Chaoming Yang
-#
-###################################################################
+# -*- coding: utf-8 -*-
+# @Author: chaomy
+# @Date:   2017-07-05 08:12:30
+# @Last Modified by:   chaomy
+# @Last Modified time: 2017-09-08 13:14:25
 
 
 class gn_md_input_gsf(object):
-    def __init__(self):
-        return
-
-    def _write_gsf_minimize(self,
-                            config_file,
+    def _write_gsf_minimize(self, config_file,
                             potential_type,
                             potential_file,
-                            element_name,
-                            tag):
-        if tag == 'relaxed':
+                            element_name, tag):
+        if tag in ['relaxed']:
             with open("in.md_gsf", 'w') as fid:
                 fid.write("""
 # --------------------- INITIALIZAITION ---------------------
@@ -51,11 +37,13 @@ class gn_md_input_gsf(object):
     min_style    cg
     minimize     1e-15     1e-15     100000     100000
     unfix        1
+    variable  Etol  equal "etotal"
+    print  "${Etol}"  file  out.txt
                         """ % (config_file,
                                potential_type,
                                potential_file,
                                element_name))
-        elif tag == 'unrelaxed':
+        elif tag in ['unrelaxed']:
             with open("in.md_gsf", 'w') as fid:
                 fid.write("""
 # --------------------- INITIALIZAITION ---------------------
@@ -80,6 +68,8 @@ class gn_md_input_gsf(object):
     min_style    cg
     minimize     1e-18      1e-18     100000     100000
     unfix        1
+    variable  Etol  equal "etotal"
+    print  "${Etol}"  file  out.txt
                         """ % (config_file,
                                potential_type,
                                potential_file,

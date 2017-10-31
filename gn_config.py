@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-08-30 11:39:35
+# @Last Modified time: 2017-09-28 14:42:23
 
 
 import os
@@ -21,14 +21,11 @@ class gnStructure(object):
         self._cartition = [[1, 0, 0],
                            [0, 1, 0],
                            [0, 0, 1]]
-
         self._default_direction = [[1, 0, 0],
                                    [0, 1, 0],
                                    [0, 0, 1]]
-
         self._default_size = (5, 5, 5)
         self._config_file_format = 'vasp'
-        self._lattice_constant = pot['lattice']
         self._element = pot['element']
         return
 
@@ -41,7 +38,6 @@ class gnStructure(object):
         #  a_list = np.array([102, 107, 103, 105, 104]);
         #  b_list = np.array([123, 122, 124, 84,   89]);
         fix_list = np.array([107, 103, 105, 122, 124, 84])
-
         cell = atoms.get_cell()
         positions = atoms.get_positions()
         print positions
@@ -151,6 +147,41 @@ class gnStructure(object):
         out_cell[2, 0], out_cell[2, 1], out_cell[2, 2] = cx, cy, cz
         return out_cell
 
+    # with charge
+    def write_lmp_config_data_charge(self, atoms, filename="lmp_init.txt"):
+        pos = atoms.get_positions()
+        atom_num = len(pos)
+        cell = atoms.get_cell()
+        allsymbos = atoms.get_chemical_symbols()
+        symbols = np.unique(allsymbos)
+        print symbols
+        with open(filename, mode="w") as fout:
+            fout.write("#lmp data config")
+            fout.write("\n")
+            fout.write("%d atoms\n" % (atom_num))
+            fout.write("{} atom types\n".format(len(symbols)))
+            fout.write("%f\t%f xlo xhi\n" % (0, cell[0, 0]))
+            fout.write("%f\t%f ylo yhi\n" % (0, cell[1, 1]))
+            fout.write("%f\t%f zlo zhi\n" % (0, cell[2, 2]))
+            fout.write("%f  %f  %f xy xz yz\n"
+                       % (cell[1, 0], cell[2, 0], cell[2, 1]))
+            fout.write("Atoms\n")
+            fout.write("\n")
+            for i in range(atom_num):
+                for k in range(len(symbols)):
+                    if allsymbos[i] == symbols[k]:
+                        if k in [0, 1, 2]:
+                            fout.write("%d %d %g %12.7f %12.7f %12.7f\n"
+                                       % (i + 1, k + 1, 0, pos[i, 0], pos[i, 1], pos[i, 2]))
+                        elif k in [3]:
+                            fout.write("%d %d %g %12.7f %12.7f %12.7f\n"
+                                       % (i + 1, k + 1, 3, pos[i, 0], pos[i, 1], pos[i, 2]))
+                        elif k in [4]:
+                            fout.write("%d %d %g %12.7f %12.7f %12.7f\n"
+                                       % (i + 1, k + 1, -2, pos[i, 0], pos[i, 1], pos[i, 2]))
+        fout.close()
+        return
+
     def write_lmp_config_data(self, atoms, filename="lmp_init.txt"):
         positions = atoms.get_positions()
         atom_num = len(positions)
@@ -174,7 +205,7 @@ class gnStructure(object):
                 for k in range(len(symbols)):
                     if allsymbos[i] == symbols[k]:
                         fout.write("%d %d %12.7f %12.7f %12.7f\n"
-                                   % (i + 1, k + 1,  positions[i, 0], positions[i, 1], positions[i, 2]))
+                                   % (i + 1, k + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
         fout.close()
         return
 
@@ -227,10 +258,6 @@ class gnStructure(object):
         self._element = symbol
         return
 
-    def set_lattce_constant(self, lattice_constant):
-        self._lattice_constant = lattice_constant
-        return
-
     def set_size(self, in_size):
         self._default_size = in_size
         return
@@ -276,7 +303,6 @@ class bcc(gnStructure, add_strain):
         self.pot = pot
         gnStructure.__init__(self, self.pot)
         add_strain.__init__(self)
-        self._lattice_constant = self.pot['latbcc']
         self._element = self.pot['element']
         return
 
@@ -293,7 +319,7 @@ class bcc(gnStructure, add_strain):
                                 pbc=(1, 1, 1))
 
         self.set_bcc_primitive_direction()
-        cell = self._primitive_directions * self._lattice_constant
+        cell = self._primitive_directions * self.pot['latbcc']
         atoms.set_cell(cell, scale_atoms=True)
         # atoms = atoms.repeat(in_size)
         return atoms
@@ -310,9 +336,9 @@ class bcc(gnStructure, add_strain):
         atoms = Cubic.BodyCenteredCubic(directions=in_direction,
                                         latticeconstant=self.pot['latbcc'],
                                         size=in_size,
-                                        symbol=self._element,
+                                        symbol=self.pot['element'],
                                         pbc=(1, 1, 1))
-        atoms.wrap()  # It's important
+        atoms.wrap()  #
         return atoms
 
     def write_bcc_convention(self, in_direction, in_size=(1, 1, 1)):
@@ -391,8 +417,6 @@ class fcc(gnStructure, add_strain):
     def __init__(self, pot=None):
         gnStructure.__init__(self, pot)
         add_strain.__init__(self)
-        if pot is not None:
-            self._lattice_constant = pot['latfcc']
         return
 
     def set_fcc_primitive_direction(self):
@@ -410,7 +434,7 @@ class fcc(gnStructure, add_strain):
                                 pbc=(1, 1, 1))
 
         self.set_fcc_primitive_direction()
-        cell = self._primitive_directions * self._lattice_constant
+        cell = self._primitive_directions * self.pot['latfcc']
         atoms.set_cell(cell, scale_atoms=True)
         atoms2 = atoms.repeat(in_size)
         return atoms2
@@ -425,7 +449,7 @@ class fcc(gnStructure, add_strain):
             l_direction = self._default_direction
 
         atoms = Cubic.FaceCenteredCubic(directions=l_direction,
-                                        latticeconstant=self._lattice_constant,
+                                        latticeconstant=self.pot['latfcc'],
                                         size=l_size,
                                         symbol=self._element,
                                         pbc=(1, 1, 1))
@@ -499,21 +523,13 @@ class hcp(gnStructure, add_strain):
     def __init__(self, pot=None):
         gnStructure.__init__(self, pot)
         add_strain.__init__(self)
-        if pot is not None:
-            self.lattice_a = pot['ahcp']
-            self.lattice_c = pot['chcp']
         return
 
     def set_hcp_lattice_constant_ratio(self,
                                        ta=np.sqrt(3) / 2.,
                                        tb=np.sqrt(8. / 3.)):
-        self.lattice_a = self._lattice_constant * ta
-        self.lattice_c = self.lattice_a * tb
-        return
-
-    def set_hcp_lattice_constant(self, a, c):
-        self.lattice_a = a
-        self.lattice_c = c
+        self.pot['ahcp'] = self.pot['lattice'] * ta
+        self.pot['chcp'] = self.pot['ahcp'] * tb
         return
 
     def set_hcp_direction(self):
@@ -522,15 +538,14 @@ class hcp(gnStructure, add_strain):
                                         [0, 0, np.sqrt(8. / 3)]])
         return
 
-    def set_hcp_convention(self, in_size=None):
-        if in_size is None:
-            in_size = (1, 1, 1)
+    def set_hcp_convention(self, in_size=(1, 1, 1)):
         atoms = \
-            Hexagonal.HexagonalClosedPacked(latticeconstant={'a': self.lattice_a,
-                                                             'c': self.lattice_c},
-                                            size=in_size,
-                                            symbol=self._element,
-                                            pbc=(1, 1, 1))
+            Hexagonal.HexagonalClosedPacked(
+                latticeconstant={'a': self.pot['ahcp'],
+                                 'c': self.pot['chcp']},
+                size=in_size,
+                symbol=self._element,
+                pbc=(1, 1, 1))
         print atoms.get_cell()
         return atoms
 
