@@ -1,25 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
-###################################################################
-#
-# File Name : gn_md_input_hcp_lattice.py
-#
-###################################################################
-#
-# Purpose :
-#
-# Creation Date :
-# Last Modified :
-# Created By    : Chaoming Yang
-#
-###################################################################
+# -*- coding: utf-8 -*-
+# @Author: chaomy
+# @Date:   2017-11-01 01:50:49
+# @Last Modified by:   chaomy
+# @Last Modified time: 2017-11-01 01:51:37
 
 
 class gn_md_input_hcp_lattice(object):
-    def __init__(self):
-        return
-
     def _write_hcp_lattice(self,
                            fname,
                            lattice_a,
