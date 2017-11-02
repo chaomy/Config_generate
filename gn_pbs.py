@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-09-20 00:39:37
+# @Last Modified time: 2017-11-02 00:16:24
 
 import os
 
@@ -21,6 +21,7 @@ class gn_pbs(object):
         self._nnodes = nnodes
         self._wall_time = walltime
         self._ppn = 12
+        self._mem = 2
         return
 
     def set_nnodes(self, nnodes=2):
@@ -44,7 +45,11 @@ class gn_pbs(object):
         return self._ppn
 
     def set_ppn(self, ppn):
-        self.ppn = ppn
+        self._ppn = ppn
+        return
+        
+    def set_mem(self, mem):
+        self._mem = mem
         return
 
     def set_main_job(self, jobname):
@@ -90,7 +95,7 @@ class gn_pbs(object):
 #PBS -M chaomy@umich.edu
 #PBS -m e
 
-#PBS -l nodes=%d:ppn=%d:ib,pmem=2gb,walltime=%d:00:00
+#PBS -l nodes=%d:ppn=%d:ib,pmem=%dgb,walltime=%d:00:00
 #PBS -j oe
 #PBS -V
 
@@ -100,7 +105,7 @@ class gn_pbs(object):
 
 ####  End PBS preamble
 cd $PBS_O_WORKDIR
-""" % (self.job_title, self._nnodes, self._ppn,
+""" % (self.job_title, self._nnodes, self._ppn, self._mem,
                 self._wall_time, flux_type, flux_type))
             if type(self.exe) is list:
                 fid.writelines(self.exe)
