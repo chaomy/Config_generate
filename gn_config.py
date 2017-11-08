@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-11-08 00:06:12
+# @Last Modified time: 2017-11-08 00:07:02
 
 
 import os
@@ -371,7 +371,7 @@ class bcc(gnStructure, add_strain):
         atoms.set_positions(org_positions)
         if write is True:
             self.write_config_output(atoms)
-        return
+        return atoms
 
     def write_bcc_primitive_with_strain(self,
                                         delta=None,
