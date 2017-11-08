@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-11-08 00:05:30
+# @Last Modified time: 2017-11-08 00:06:12
 
 
 import os
@@ -369,7 +369,7 @@ class bcc(gnStructure, add_strain):
         new_cell = strain * new_cell
         atoms.set_cell(new_cell)
         atoms.set_positions(org_positions)
-        if write is True; 
+        if write is True:
             self.write_config_output(atoms)
         return
 
