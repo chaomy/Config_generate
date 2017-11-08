@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-09-28 14:42:23
+# @Last Modified time: 2017-11-08 00:05:30
 
 
 import os
@@ -349,7 +349,8 @@ class bcc(gnStructure, add_strain):
     def write_bcc_with_strain(self,
                               delta=None,
                               in_tag='ortho',
-                              in_size=None):
+                              in_size=None,
+                              write=False):
 
         if in_tag == 'ortho' or in_tag == 'c12':
             strain = self.volume_conserving_orthohombic(delta)
@@ -368,7 +369,8 @@ class bcc(gnStructure, add_strain):
         new_cell = strain * new_cell
         atoms.set_cell(new_cell)
         atoms.set_positions(org_positions)
-        self.write_config_output(atoms)
+        if write is True; 
+            self.write_config_output(atoms)
         return
 
     def write_bcc_primitive_with_strain(self,

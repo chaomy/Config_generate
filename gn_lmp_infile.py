@@ -3,10 +3,11 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-09-20 00:35:19
+# @Last Modified time: 2017-11-07 15:20:11
 
 
 import os
+import md_pot_data
 
 
 class size:
@@ -23,36 +24,21 @@ class gb_param:
 
 class gn_md_infile(object):
 
-    def __init__(self, inpot=None, **kwargs):
+    def __init__(self, inpot=md_pot_data.md_pot.Nb_my, **kwargs):
         self.pot = inpot
         self.config_file = None
-        self.potential_file = None
-        self.element_name = None
-        self.lattice_constant = None
         self.basics = dict([('inrelax', 'in.minimize'),
                             ('innebinit', 'in.init'),
                             ('innebfinal', 'in.final'),
                             ('innpt', 'in.npt'),
                             ('innvt', 'in.nvt'),
-                            ('pair_coeff', 'Nb.eam.alloy.webarchive'),
-                            ('pair_style', 'eam/alloy'),
-                            ('lattice', 3.308),
                             ('struct', 'bcc'),
-                            ('element', 'Nb'),
                             ('read_data', 'init.txt'),
                             ('read_restart', 'init_restart')])
         if kwargs is not None:
             for key, value in kwargs.iteritems():
                 if self.basics.has_key(key):
                     self.basics[key] = value
-        return
-
-    def set_md_lattice(self, in_lattice):
-        self.lattice_constant = in_lattice
-        return
-
-    def set_md_potential(self, in_potential):
-        self.potential_file = in_potential
         return
 
     def set_md_temperature(self, in_temperature):
@@ -63,12 +49,7 @@ class gn_md_infile(object):
         self.config_file = config_file
         return
 
-    def set_md_element(self, element):
-        self.element_name = element
-        return
-
     def write_cu3au_infile(self,
-                           lattice,
                            input_size=None):
         from gn_md_input_cu3au import gn_md_input_cu3au
         _drv = gn_md_input_cu3au()
@@ -79,7 +60,7 @@ class gn_md_infile(object):
             input_size.ydim = 50
             input_size.zdim = 20
 
-        _drv._write_Cu3Au_perf("in.test", lattice, input_size)
+        _drv._write_Cu3Au_perf("in.test", self.pot["lattice"], input_size)
         return
 
     def write_mgnd_infile(self, fname, param):
@@ -89,98 +70,47 @@ class gn_md_infile(object):
         return
 
     def write_hcp_lattice_infile(self, fname="in.hcp",
-                                 lattice_a=2.85,
-                                 potential_type="eam/alloy",
-                                 potential_file="Nb.eam.alloy.webarchive",
                                  element='Nb'):
         from gn_md_input_hcp_lattice import gn_md_input_hcp_lattice
         _drv = gn_md_input_hcp_lattice()
-        _drv._write_hcp_lattice(fname,
-                                lattice_a,
-                                element,
-                                potential_type,
-                                potential_file)
+        _drv._write_hcp_lattice(fname)
         return
 
     def write_fcc_lattie_infile(self, fname="in.fcc",
-                                lattice=4.0,
-                                potential_type="eam/alloy",
-                                potential_file="Nb.eam.alloy.webarchive",
                                 element='Nb'):
         from gn_md_input_fcc_lattice import gn_md_input_fcc_lattice
         _drv = gn_md_input_fcc_lattice()
-        _drv._write_fcc_lattice(fname,
-                                lattice,
-                                element,
-                                potential_type,
-                                potential_file)
+        _drv._write_fcc_lattice(fname)
         return
 
     def write_bcc_lattice_infile(self,
-                                 fname="in.bcc",
-                                 lattice=3.0,
-                                 potential_type="eam/alloy",
-                                 potential_file="Nb.eam.alloy.webarchive",
-                                 element='Nb'):
+                                 fname="in.bcc"):
         from gn_md_input_bcc_lattice import gn_md_input_bcc_lattice
         _drv = gn_md_input_bcc_lattice()
-        _drv._write_bcc_lattice(fname,
-                                lattice,
-                                element,
-                                potential_type,
-                                potential_file)
+        _drv._write_bcc_lattice(fname)
         return
 
     def gn_gsf_minimize(self,
-                        config_file="in.gsf",
-                        potential_type='eam/alloy',
-                        potential_file='Nb.eam.alloy.webarchive',
-                        element='Nb',
-                        tag='relaxed'):
-
+                        config_file="in.gsf", tag='relaxed'):
         from gn_md_input_gsf import gn_md_input_gsf
         _drv = gn_md_input_gsf()
-        _drv._write_gsf_minimize(config_file,
-                                 potential_type,
-                                 potential_file,
-                                 element,
-                                 tag)
+        _drv._write_gsf_minimize(config_file, tag)
         return
 
     def gn_md_input_vacancy(self,
-                            config_file='in.vacancy',
-                            potential_type='eam/alloy',
-                            potential_file='Nb.eam.alloy.webarchive',
-                            element='Nb'):
+                            config_file='in.vacancy'):
         from gn_md_input_vacancy import gn_md_input_vacancy
         _drv = gn_md_input_vacancy()
-        _drv._write_input_vacancy(config_file,
-                                  potential_type,
-                                  potential_file,
-                                  element)
+        _drv._write_input_vacancy(config_file)
         return
 
-    def gn_md_input_vacancy_migration(self,
-                                      potential_type='eam/alloy',
-                                      potential_file='Nb.eam.alloy.webarchive',
-                                      element='Nb'):
+    def gn_md_input_vacancy_migration(self):
         from gn_md_input_vacancy import gn_md_input_vacancy
         _drv = gn_md_input_vacancy()
 
-        _drv._write_neb_init('init.txt',
-                             potential_type,
-                             potential_file,
-                             element)
-
-        _drv._write_neb_final('final.txt',
-                              potential_type,
-                              potential_file,
-                              element)
-
-        _drv._write_neb_run('init_restart',
-                            potential_type,
-                            potential_file,
-                            element)
+        _drv._write_neb_init('init.txt')
+        _drv._write_neb_final('final.txt')
+        _drv._write_neb_run('init_restart')
         return
 
     def write_md_thermo_expand(self,
@@ -198,20 +128,10 @@ class gn_md_infile(object):
         return
 
     def gn_md_minimize_cfg(self,
-                           config_file=None,
-                           potential_file=None,
-                           element=None,
-                           fix=None):
+                           config_file=None, fix=None):
 
         if config_file is not None:
             self.set_md_config(config_file)
-        if potential_file is not None:
-            self.set_md_potential(potential_file)
-        if element is not None:
-            self.set_md_element(element)
-
-        if not os.path.isdir("cfg"):
-            os.mkdir("cfg")
         if fix is None:
             with open("in.minimize", 'w') as fid:
                 fid.write("""
@@ -240,9 +160,9 @@ variable     Ef     equal   "c_eatoms"
 min_style    cg
 minimize     1e-20      1e-20     100000     100000
                         """ % (self.config_file,
-                               self.potential_file,
-                               self.element_name,
-                               self.element_name))
+                               self.pot["file"],
+                               self.pot["element"],
+                               self.pot["element"]))
         else:
             with open("in.minimize", 'w') as fid:
                 fid.write("""
@@ -275,23 +195,17 @@ fix          fixscrew1   tofix    setforce   NULL  NULL  0.0
 min_style    cg
 minimize     1e-20      1e-20     100000     100000
                         """ % (self.config_file,
-                               self.potential_file,
-                               self.element_name,
-                               self.element_name))
+                               self.pot["file"],
+                               self.pot["element"],
+                               self.pot["element"]))
 
         return
 
     def gn_md_minimize(self,
-                       config_file=None,
-                       potential_file=None,
-                       element=None):
+                       config_file=None):
 
         if config_file is not None:
             self.set_md_config(config_file)
-        if potential_file is not None:
-            self.set_md_potential(potential_file)
-        if element is not None:
-            self.set_md_element(element)
 
         with open("in.minimize", 'w') as fid:
             fid.write("""
@@ -328,9 +242,7 @@ run          1
 
     def gn_md_shear_lattice(self,
                             config_file=None,
-                            temp=None,
-                            potential_file=None,
-                            element=None):
+                            temp=None):
         if config_file is not None:
             self.set_md_config(config_file)
         if potential_file is not None:
@@ -388,22 +300,16 @@ run          500000
 unfix   1
 unfix   2
                      """ % (self.config_file,
-                            self.potential_file,
-                            self.element_name,
+                            self.pot['file'],
+                            self.pot["element"],
                             temp, temp, temp))
         return
 
     def gn_md_temp_lattice(self,
                            config_file=None,
-                           temp=None,
-                           potential_file=None,
-                           element=None):
+                           temp=None):
         if config_file is not None:
             self.set_md_config(config_file)
-        if potential_file is not None:
-            self.set_md_potential(potential_file)
-        if element is not None:
-            self.set_md_element(element)
         with open("in.lattice", 'w') as fid:
             fid.write("""
 # --------------------- INITIALIZAITION ---------------------
@@ -446,23 +352,16 @@ variable lengthy  equal "ly"
 print "Lattice_constantx = ${lengthx}"
 print "Lattice_constanty = ${lengthy}"
                      """ % (self.config_file,
-                            self.potential_file,
-                            self.element_name,
+                            self.pot["file"],
+                            self.self["element"],
                             temp, temp, temp))
         return
 
     def gn_md_lattice(self,
-                      config_file=None,
-                      potential_file=None,
-                      element=None):
+                      config_file=None):
 
         if config_file is not None:
             self.set_md_config(config_file)
-        if potential_file is not None:
-            self.set_md_potential(potential_file)
-        if element is not None:
-            self.set_md_element(element)
-
         with open("in.lattice", 'w') as fid:
             fid.write("""
 # --------------------- INITIALIZAITION ---------------------
@@ -500,13 +399,11 @@ variable lengthy  equal "ly"
 print "Lattice_constantx = ${lengthx}\"
 print "Lattice_constanty = ${lengthy}\"
                     """ % (self.config_file,
-                           self.potential_file,
-                           self.element_name))
+                           self.pot["file"],
+                           self.pot["element"]))
         return
 
     def gn_md_cij(self):
-        os.system("cp ~/My_cal/Generate_config/in.elastic  .")
-        os.system("cp ~/My_cal/Generate_config/displace.mod  .")
         with open("init.mod", 'w') as fid:
             fid.write("""
 variable up equal 1.0e-6
@@ -559,17 +456,9 @@ thermo_modify norm no
         return
 
     def gn_md_pp_tensile(self,
-                         potential_file=None,
-                         element=None,
                          temperature=None,
                          deform_direction=None,
                          deform_rate=None):
-        if potential_file is not None:
-            self.set_md_potential(potential_file)
-
-        if element is not None:
-            self.set_md_element(element)
-
         if temperature is not None:
             self.set_md_temperature(temperature)
 
@@ -638,26 +527,19 @@ unfix    1
 unfix    2
 restart  10000   restart/*.restart
                     """ % (self.potential_file,
-                           self.element_name,
+                           self.self.pot["element"],
                            deform_rate,
                            2.0 * self.md_temperature,
                            self.md_temperature,
                            self.md_temperature,
                            deform_direction,
-                           self.element_name))
+                           self.self.pot["element"]))
         return
 
     def gn_md_nano_tensile(self,
-                           potential_file=None,
-                           element=None,
                            temperature=None,
                            deform_direction=None,
                            deform_rate=None):
-
-        if potential_file is not None:
-            self.set_md_potential(potential_file)
-        if element is not None:
-            self.set_md_element(element)
         if temperature is not None:
             self.set_md_temperature(temperature)
 
@@ -774,13 +656,13 @@ unfix   2
 
 restart  10000  restart/*.restart
                     """ % (self.potential_file,
-                           self.element_name,
+                           self.self.pot["element"],
                            deform_rate,
                            self.md_temperature,
                            self.md_temperature,
                            self.md_temperature,
                            deform_direction,
-                           self.element_name))
+                           self.self.pot["element"]))
             fid.close()
             return
 
@@ -879,15 +761,7 @@ unfix    3
                            stress))
         return
 
-    def gn_md_tensile(self,
-                      potential_file=None,
-                      element=None):
-
-        if potential_file is not None:
-            self.set_md_potential(potential_file)
-        if element is not None:
-            self.set_md_element(element)
-
+    def gn_md_tensile(self):
         with open("in.stat_tensile", 'w') as fid:
             fid.write("""
 # --------------------- INITIALIZAITION ---------------------
@@ -952,11 +826,11 @@ print "Syy = ${Syy}"
 print "Szz = ${Szz}"
 print "Syz = ${Syz}"
 print "Sxz = ${Sxz}"
-                    """ % (self.potential_file, self.element_name))
+                    """ % (self.potential_file, self.self.pot["element"]))
             fid.close()
             return
 
-    def write_shear_infile(self, filename, basis, box):
+    def write_shear_infile(self, file, basis, box):
         box = box * 10
         with open("in.tmp", 'w') as fid:
             fid.write("""
@@ -997,11 +871,10 @@ minimize   1e-8   1e-8   100000   100000
                 basis[2, 0], basis[2, 1], basis[2, 2],
                 box[0, 0],  box[1, 1], box[2, 2],
                 box[1, 0], box[2, 0], box[2, 1],
-                filename))
+                file))
         return
 
 
 if __name__ == '__main__':
-    A = gn_md_infile()
-    A.gn_md_tensile("Nb.eam.alloy.webarchive",
-                    "Nb")
+    drv = gn_md_infile()
+    drv.gn_md_cij()
