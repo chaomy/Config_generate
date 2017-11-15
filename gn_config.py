@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-11-08 00:07:02
+# @Last Modified time: 2017-11-11 17:20:09
 
 
 import os
@@ -26,7 +26,6 @@ class gnStructure(object):
                                    [0, 0, 1]]
         self._default_size = (5, 5, 5)
         self._config_file_format = 'vasp'
-        self._element = pot['element']
         return
 
     def mymkdir(self, dirname):
@@ -254,10 +253,6 @@ class gnStructure(object):
         self._directions = direction
         return
 
-    def set_element(self, symbol):
-        self._element = symbol
-        return
-
     def set_size(self, in_size):
         self._default_size = in_size
         return
@@ -303,7 +298,6 @@ class bcc(gnStructure, add_strain):
         self.pot = pot
         gnStructure.__init__(self, self.pot)
         add_strain.__init__(self)
-        self._element = self.pot['element']
         return
 
     def set_bcc_primitive_direction(self):
@@ -313,7 +307,7 @@ class bcc(gnStructure, add_strain):
         return
 
     def set_bcc_primitive(self, in_size=(1, 1, 1)):
-        atoms = ase.atoms.Atoms(symbols=self._element,
+        atoms = ase.atoms.Atoms(symbols=self.pot["element"],
                                 positions=[(0, 0, 0)],
                                 info={'unit_cell': 'primitive'},
                                 pbc=(1, 1, 1))
@@ -430,7 +424,7 @@ class fcc(gnStructure, add_strain):
     def set_fcc_primitive(self, in_size=None):
         if in_size == None:
             in_size = (1, 1, 1)
-        atoms = ase.atoms.Atoms(symbols=self._element,
+        atoms = ase.atoms.Atoms(symbols=self.pot["element"],
                                 positions=[(0, 0, 0)],
                                 info={'unit_cell': 'primitive'},
                                 pbc=(1, 1, 1))
@@ -453,7 +447,7 @@ class fcc(gnStructure, add_strain):
         atoms = Cubic.FaceCenteredCubic(directions=l_direction,
                                         latticeconstant=self.pot['latfcc'],
                                         size=l_size,
-                                        symbol=self._element,
+                                        symbol=self.pot["element"],
                                         pbc=(1, 1, 1))
         return atoms
 
@@ -513,7 +507,8 @@ class fcc(gnStructure, add_strain):
         org_positions = org_positions * strain
 
         new_cell = strain * new_cell
-        atoms.set_cell(new_cell)
+
+        atoms.set_cell(new_cell) 
         atoms.set_positions(org_positions)
 
         self.write_config_output(atoms)
@@ -546,7 +541,7 @@ class hcp(gnStructure, add_strain):
                 latticeconstant={'a': self.pot['ahcp'],
                                  'c': self.pot['chcp']},
                 size=in_size,
-                symbol=self._element,
+                symbol=self.pot["element"],
                 pbc=(1, 1, 1))
         print atoms.get_cell()
         return atoms

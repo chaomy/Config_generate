@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-27 14:55:53
+# @Last Modified time: 2017-11-14 20:36:00
 
 
 from optparse import OptionParser
@@ -12,13 +12,14 @@ import gn_dd_data_hcp
 if __name__ == '__main__':
     usage = "usage:%prog [options] arg1 [options] arg2"
     parser = OptionParser(usage=usage)
-    parser.add_option("-t", "--mtype",
-                      action="store",
-                      type="string",
-                      dest="mtype")
-    (options, args) = parser.parse_args()
+    parser.add_option('-t', "--mtype", action="store",
+                      type="string", dest="mtype")
+    parser.add_option('-p', "--param", action="store",
+                      type='string', dest="fargs")
 
+    (options, args) = parser.parse_args()
     drv = gn_dd_data_hcp.gn_dd_data_hcp()
+    
     dispatcher = {'hcpdata': drv.write_hcp_straight_data,
                   'hcporowan': drv.write_hcp_orawan_data,
                   'hcpprec': drv.inplane_hcp_beta1_prec,

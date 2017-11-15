@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-31 17:17:45
+# @Last Modified time: 2017-11-14 20:29:40
 
 import numpy as np
 from numpy import cos, sin, pi
@@ -40,7 +40,6 @@ class gn_dd_prec(object):
         self.write_precip_data(fid)
         return
 
-    # precipiates in 3d distribution
     def hcp_beta1_prec(self):
         self.set_cell()
         self.set_num_prec()

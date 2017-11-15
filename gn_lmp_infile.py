@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-11-07 15:20:11
+# @Last Modified time: 2017-11-10 02:08:09
 
 
 import os
@@ -23,8 +23,7 @@ class gb_param:
 
 
 class gn_md_infile(object):
-
-    def __init__(self, inpot=md_pot_data.md_pot.Nb_my, **kwargs):
+    def __init__(self, inpot, **kwargs):
         self.pot = inpot
         self.config_file = None
         self.basics = dict([('inrelax', 'in.minimize'),
