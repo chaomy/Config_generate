@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-02-23 02:14:53
+# @Last Modified time: 2018-02-23 02:15:22
 
 
 import os
@@ -238,7 +238,6 @@ class gnStructure(object):
                         fid.write("%d %d %12.7f %12.7f %12.7f\n"
                                   % (i + 1, k + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
         fid.close()
-        return
 
     def write_potfit_config(self, atoms, filename="dummy.config"):
         positions = atoms.get_positions()
@@ -267,7 +266,6 @@ class gnStructure(object):
                         fid.write("0 %12.7f %12.7f %12.7f 0.0 0.0 0.0\n"
                                   % (positions[i, 0], positions[i, 1], positions[i, 2]))
         fid.close()
-        return
 
     def write_lmp_coords(self, atoms, filename="lmp_coord"):
         positions = atoms.get_positions()
@@ -278,12 +276,10 @@ class gnStructure(object):
                 fid.write("%d  %f  %f  %f \n"
                           % (i + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
             fid.close()
-        return
 
     def write_poscar(self, atoms, filename="POSCAR"):
         ase.io.write(filename=filename, images=atoms, format='vasp')
         os.system("cp POSCAR POSCAR.vasp")
-        return
 
     def write_lmp_cfg(self, atoms,
                       filename=None):
@@ -294,26 +290,21 @@ class gnStructure(object):
         ase.io.write(filename=locfilename,
                      images=atoms,
                      format='cfg')
-        return
 
     def set_config_file_format(self, in_format):
         self._config_file_format = in_format
-        return
 
     def write_config_output(self, atoms):
         if self._config_file_format == 'vasp':
             self.write_poscar(atoms)
         elif self._config_file_format == 'lmp':
             self.write_lmp_cfg(atoms)
-        return
 
     def set_directions(self, direction):
         self._directions = direction
-        return
 
     def set_size(self, in_size):
         self._default_size = in_size
-        return
 
 
 class add_strain(object):
