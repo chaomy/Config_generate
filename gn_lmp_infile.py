@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-11-10 02:08:09
+# @Last Modified time: 2018-02-04 14:59:00
 
 
 import os
@@ -429,29 +429,30 @@ boundary	p p p
 lattice     bcc $a
 region		box prism  0  2.0  0  3.0  0  4.0  0.0  0.0  0.0
 create_box	1 box
-create_atoms	1 box
+create_atoms  1 box
 
 mass 1 1.0e-20
                     """ % (self.pot['lattice']))
             fid.close()
-        with open("potential.mod", 'w') as fid:
-            fid.write("""
-pair_style  %s
-pair_coeff  * *  %s  %s
+#         temperoraly deactivate it since we fix potential 
+#         with open("potential.mod", 'w') as fid:
+#             fid.write("""
+# pair_style  %s
+# pair_coeff  * *  %s  %s
 
-neighbor  1.0  nsq
-neigh_modify   once  no   every  1  delay  0  check  yes
+# neighbor  1.0  nsq
+# neigh_modify   once  no   every  1  delay  0  check  yes
 
-min_style	     cg
-min_modify	     dmax ${dmax} line quadratic
+# min_style	     cg
+# min_modify	     dmax ${dmax} line quadratic
 
-thermo		1
-thermo_style custom step temp pe press pxx pyy pzz pxy pxz pyz lx ly lz vol
-thermo_modify norm no
-                    """ % (self.pot['pair_style'],
-                           self.pot['file'],
-                           self.pot['element']))
-            fid.close()
+# thermo		1
+# thermo_style custom step temp pe press pxx pyy pzz pxy pxz pyz lx ly lz vol
+# thermo_modify norm no
+#                     """ % (self.pot['pair_style'],
+#                            self.pot['file'],
+#                            self.pot['element']))
+#             fid.close()
         return
 
     def gn_md_pp_tensile(self,

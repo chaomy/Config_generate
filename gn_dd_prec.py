@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-11-14 20:29:40
+# @Last Modified time: 2018-02-18 21:05:44
 
 import numpy as np
 from numpy import cos, sin, pi
@@ -14,7 +14,9 @@ class gn_dd_prec(object):
 
     def __init__(self):
         self.precs = None
-        self.precfile = '{}.dat'.format(self.job)
+        # self.precfile = '{}.dat'.format(self.job)
+        # self.precfile = 'prect.dat'
+        self.precfile = 'onescrew.dat'
         return
 
     def set_num_prec(self, volfrac=0.16):
@@ -29,7 +31,57 @@ class gn_dd_prec(object):
             if (volsum > vol0):
                 break
         print "num precs", cnt
-        return
+
+    def single_sphere(self):
+        self.ddata.precn = 1
+        self.precs = []
+        sz = 50
+        for i in range(self.ddata.precn):
+            prec = dddat.prec()
+            prec.precid = i + 1
+            prec.coords = np.array([0, 0, 0])
+            prec.dimaxi = np.array([sz, sz, sz])
+            prec.strain = self.set_prec_strain()
+            prec.rotate = self.set_prec_rotate((0., 0., 0.))
+            print "coord", prec.coords
+            print "size", prec.dimaxi
+            self.precs.append(prec)
+
+    def gn_fcc_inplane_sphere(self):
+        self.set_cell()
+        self.precs = []
+        cell = self.ddata.cell
+        sz = cell[0, 1] - cell[0, 0]
+        # (-1, 1, -1)
+        # (x, y, z)   -x + y - z = 0;
+        nb = 20
+        dlt = sz / nb
+        for i in range(nb):
+            x = dlt * i + cell[0, 0]
+            prec = dddat.prec()
+            prec.precid = i + 1
+            while(True):
+                if (np.random.rand() > 0.5):
+                    y = np.random.rand() * 0.5 * sz
+                else:
+                    y = -np.random.rand() * 0.5 * sz
+                z = -x + y
+                print y, z, cell[0, 1]
+                if (np.abs(z) <= cell[0, 1]):
+                    break
+            prec.coords = np.array([x, y, z])
+            prec.dimaxi = np.array([50, 50, 50])
+            prec.rotate = self.set_prec_rotate((0., 0., 0.))
+            prec.strain = self.set_prec_strain()
+            self.precs.append(prec)
+        fid = self.write_precip_header()
+        self.write_precip_data(fid)
+
+    def gn_bcc_single_sphere(self):
+        self.set_cell()
+        self.single_sphere()
+        fid = self.write_precip_header()
+        self.write_precip_data(fid)
 
     # precipiates in signle basal plane
     def inplane_hcp_beta1_prec(self):
@@ -38,7 +90,6 @@ class gn_dd_prec(object):
         self.set_inplane_prec()
         fid = self.write_precip_header()
         self.write_precip_data(fid)
-        return
 
     def hcp_beta1_prec(self):
         self.set_cell()
@@ -46,7 +97,6 @@ class gn_dd_prec(object):
         self.set_3d_prec()
         fid = self.write_precip_header()
         self.write_precip_data(fid)
-        return
 
     def set_prec_strain(self):
         strain = np.zeros(6)
@@ -102,7 +152,6 @@ class gn_dd_prec(object):
             if all([(volsum > vol0), (cnt % 3 == 0)]) is True:
                 break
         self.ddata.precn = cnt
-        return
 
     def set_beta1(self, cnt):
         prec = dddat.prec()
@@ -142,24 +191,6 @@ class gn_dd_prec(object):
         fid.write(dddat.precfile_header)
         return fid
 
-    # def write_precip_data(self, fid):
-    #     strformat = '{} ' + '{:4.2f} ' * (3 * 6) + '\n'
-    #     prec = self.precs[1]
-    #     for prec in self.precs:
-    #         line = strformat.format(
-    #             prec.precid,
-    #             prec.coords[0], prec.coords[1], prec.coords[2],
-    #             prec.dimaxi[0], prec.dimaxi[1], prec.dimaxi[2],
-    #             prec.rotate[0, 0], prec.rotate[0, 1],
-    #             prec.rotate[0, 2], prec.rotate[1, 0],
-    #             prec.rotate[1, 1], prec.rotate[1, 2],
-    #             prec.strain[0], prec.strain[1],
-    #             prec.strain[2], prec.strain[3],
-    #             prec.strain[4], prec.strain[5])
-    #         fid.write(line)
-    #     fid.close()
-    #     return
-
     def write_precip_data(self, fid):
         # strformat = '{} ' + '{:7.6f} ' * (3 * 6) + '\n'
         strformat = '{} ' + '{:4.3f} ' * 6
@@ -179,4 +210,3 @@ class gn_dd_prec(object):
                 prec.strain[4], prec.strain[5])
             fid.write(line)
         fid.close()
-        return

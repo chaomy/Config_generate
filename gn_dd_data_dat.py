@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-07-28 13:30:02
+# @Last Modified time: 2017-12-09 21:52:11
 
 
 from numpy import sqrt
@@ -12,6 +12,9 @@ import numpy as np
 Mg = {'pois': 0.29,
       'shearModulus': 17,
       'cOVERa': 1.6236}
+
+Fe = {'pois': 0.291,
+      'shearModulus': 94.1}
 
 c = Mg['cOVERa']
 
@@ -84,6 +87,17 @@ plnsb10 = {
     'PrIII': np.array([0., 1., 0])
 }
 
+
+bccslip = {
+    'b1': {
+        'b': np.array([1. / 2., 1. / 2., 1. / 2.]),
+        'norms': {'n1': np.array([0, 1, -1]),
+                  'n2': np.array([-1, 0, 1]),
+                  'n3': np.array([1, -1, 0])},
+        'flux': [None, None, None],
+        'density': [None]
+    }
+}
 
 hcpslip = {
     'b1': {

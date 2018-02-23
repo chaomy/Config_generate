@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-11-02 00:16:24
+# @Last Modified time: 2017-11-26 16:01:54
 
 import os
 
@@ -21,7 +21,7 @@ class gn_pbs(object):
         self._nnodes = nnodes
         self._wall_time = walltime
         self._ppn = 12
-        self._mem = 2
+        self._mem = 1 
         return
 
     def set_nnodes(self, nnodes=2):

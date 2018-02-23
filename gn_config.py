@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-11-11 17:20:09
+# @Last Modified time: 2018-02-23 02:14:53
 
 
 import os
@@ -26,12 +26,10 @@ class gnStructure(object):
                                    [0, 0, 1]]
         self._default_size = (5, 5, 5)
         self._config_file_format = 'vasp'
-        return
 
     def mymkdir(self, dirname):
         if not os.path.isdir(dirname):
             os.mkdir(dirname)
-        return
 
     def write_config_with_fix(self, atoms):
         #  a_list = np.array([102, 107, 103, 105, 104]);
@@ -66,18 +64,15 @@ class gnStructure(object):
                                  positions[i, 2]))
             fid.close()
         os.system("cp POSCAR POSCAR.vasp")
-        return
 
     def vasp_intro_alloy(self):
-        atoms = ase.io.read(filename="POSCAR",
-                            format='vasp')
+        atoms = ase.io.read(filename="POSCAR", format='vasp')
         print atoms
         alloy_num = 0
         for atom in atoms:
             if np.random.rand() < 0.1:
                 atom.symbol = 'Re'
                 alloy_num += 1
-
         cell = atoms.get_cell()
         with open("POSCAR", 'w') as fid:
             fid.write("W   Re\n")
@@ -101,7 +96,6 @@ class gnStructure(object):
                               % (atom.position[0], atom.position[1], atom.position[2]))
             fid.close()
         os.system("cp POSCAR POSCAR.vasp")
-        return
 
     def cut_plane_for_vacancy(self, atoms):
         cell = atoms.get_cell()
@@ -149,81 +143,145 @@ class gnStructure(object):
     # with charge
     def write_lmp_config_data_charge(self, atoms, filename="lmp_init.txt"):
         pos = atoms.get_positions()
-        atom_num = len(pos)
+        natm = len(pos)
         cell = atoms.get_cell()
         allsymbos = atoms.get_chemical_symbols()
         symbols = np.unique(allsymbos)
         print symbols
-        with open(filename, mode="w") as fout:
-            fout.write("#lmp data config")
-            fout.write("\n")
-            fout.write("%d atoms\n" % (atom_num))
-            fout.write("{} atom types\n".format(len(symbols)))
-            fout.write("%f\t%f xlo xhi\n" % (0, cell[0, 0]))
-            fout.write("%f\t%f ylo yhi\n" % (0, cell[1, 1]))
-            fout.write("%f\t%f zlo zhi\n" % (0, cell[2, 2]))
-            fout.write("%f  %f  %f xy xz yz\n"
-                       % (cell[1, 0], cell[2, 0], cell[2, 1]))
-            fout.write("Atoms\n")
-            fout.write("\n")
-            for i in range(atom_num):
+        with open(filename, mode="w") as fid:
+            fid.write("#lmp data config")
+            fid.write("\n")
+            fid.write("%d atoms\n" % (natm))
+            fid.write("{} atom types\n".format(len(symbols)))
+            fid.write("%f\t%f xlo xhi\n" % (0, cell[0, 0]))
+            fid.write("%f\t%f ylo yhi\n" % (0, cell[1, 1]))
+            fid.write("%f\t%f zlo zhi\n" % (0, cell[2, 2]))
+            fid.write("%f  %f  %f xy xz yz\n"
+                      % (cell[1, 0], cell[2, 0], cell[2, 1]))
+            fid.write("Atoms\n")
+            fid.write("\n")
+            for i in range(natm):
                 for k in range(len(symbols)):
                     if allsymbos[i] == symbols[k]:
                         if k in [0, 1, 2]:
-                            fout.write("%d %d %g %12.7f %12.7f %12.7f\n"
-                                       % (i + 1, k + 1, 0, pos[i, 0], pos[i, 1], pos[i, 2]))
+                            fid.write("%d %d %g %12.7f %12.7f %12.7f\n"
+                                      % (i + 1, k + 1, 0, pos[i, 0], pos[i, 1], pos[i, 2]))
                         elif k in [3]:
-                            fout.write("%d %d %g %12.7f %12.7f %12.7f\n"
-                                       % (i + 1, k + 1, 3, pos[i, 0], pos[i, 1], pos[i, 2]))
+                            fid.write("%d %d %g %12.7f %12.7f %12.7f\n"
+                                      % (i + 1, k + 1, 3, pos[i, 0], pos[i, 1], pos[i, 2]))
                         elif k in [4]:
-                            fout.write("%d %d %g %12.7f %12.7f %12.7f\n"
-                                       % (i + 1, k + 1, -2, pos[i, 0], pos[i, 1], pos[i, 2]))
-        fout.close()
+                            fid.write("%d %d %g %12.7f %12.7f %12.7f\n"
+                                      % (i + 1, k + 1, -2, pos[i, 0], pos[i, 1], pos[i, 2]))
+        fid.close()
         return
+
+    def write_poscar_fix(self, atoms, filename="POSCAR"):
+        positions = atoms.get_positions()
+        natm = len(positions)
+        cell = atoms.get_cell()
+        allsymbos = atoms.get_chemical_symbols()
+        symbols = np.unique(allsymbos)
+        nb = []
+
+        for k in range(len(symbols)):
+            cn = 0
+            for i in range(natm):
+                if (allsymbos[i] == symbols[k]):
+                    cn += 1
+            nb.append(cn)
+
+        with open(filename, "w") as fid:
+            fid.write("poscar\n")
+            fid.write("1\n")
+            fid.write("%12.6f %12.6f %12.6f\n" %
+                      (cell[0, 0], cell[0, 1], cell[0, 2]))
+            fid.write("%12.6f %12.6f %12.6f\n" %
+                      (cell[1, 0], cell[1, 1], cell[1, 2]))
+            fid.write("%12.6f %12.6f %12.6f\n" %
+                      (cell[2, 0], cell[2, 1], cell[2, 2]))
+            for i in range(len(symbols)):
+                fid.write("{} ".format(symbols[i]))
+            fid.write("\n")
+            for i in range(len(symbols)):
+                fid.write("{} ".format(nb[i]))
+            fid.write("\n")
+            fid.write("Selective dynamics\n")
+            fid.write("Cartesian\n")
+            for k in range(len(symbols)):
+                for i in range(natm):
+                    if (allsymbos[i] == symbols[k]):
+                        fid.write("%12.7f %12.7f %12.7f F F T\n"
+                                  % (positions[i, 0], positions[i, 1], positions[i, 2]))
+        fid.close()
 
     def write_lmp_config_data(self, atoms, filename="lmp_init.txt"):
         positions = atoms.get_positions()
-        atom_num = len(positions)
+        natm = len(positions)
+        cell = atoms.get_cell()
+        allsymbos = atoms.get_chemical_symbols()
+        symbols = np.unique(allsymbos)
+        with open(filename, mode="w") as fid:
+            fid.write("#lmp data config")
+            fid.write("\n")
+            fid.write("%d atoms\n" % (natm))
+            fid.write("{} atom types\n".format(len(symbols)))
+            fid.write("%f\t%f xlo xhi\n" % (0, cell[0, 0]))
+            fid.write("%f\t%f ylo yhi\n" % (0, cell[1, 1]))
+            fid.write("%f\t%f zlo zhi\n" % (0, cell[2, 2]))
+            fid.write("%f  %f  %f xy xz yz\n"
+                      % (cell[1, 0], cell[2, 0], cell[2, 1]))
+            fid.write("Atoms\n")
+            fid.write("\n")
+            for i in range(natm):
+                for k in range(len(symbols)):
+                    if allsymbos[i] == symbols[k]:
+                        fid.write("%d %d %12.7f %12.7f %12.7f\n"
+                                  % (i + 1, k + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
+        fid.close()
+        return
+
+    def write_potfit_config(self, atoms, filename="dummy.config"):
+        positions = atoms.get_positions()
+        natm = len(positions)
         cell = atoms.get_cell()
         allsymbos = atoms.get_chemical_symbols()
         symbols = np.unique(allsymbos)
         print symbols
-        with open(filename, mode="w") as fout:
-            fout.write("#lmp data config")
-            fout.write("\n")
-            fout.write("%d atoms\n" % (atom_num))
-            fout.write("{} atom types\n".format(len(symbols)))
-            fout.write("%f\t%f xlo xhi\n" % (0, cell[0, 0]))
-            fout.write("%f\t%f ylo yhi\n" % (0, cell[1, 1]))
-            fout.write("%f\t%f zlo zhi\n" % (0, cell[2, 2]))
-            fout.write("%f  %f  %f xy xz yz\n"
-                       % (cell[1, 0], cell[2, 0], cell[2, 1]))
-            fout.write("Atoms\n")
-            fout.write("\n")
-            for i in range(atom_num):
+        with open(filename, mode="w") as fid:
+            fid.write("#N {} 1\n".format(natm))
+            fid.write("#C Nb\n")
+            fid.write("## abc\n")
+            fid.write("#X {} {} {}\n".format(
+                cell[0, 0], cell[0, 1], cell[0, 2]))
+            fid.write("#Y {} {} {}\n".format(
+                cell[1, 0], cell[1, 1], cell[1, 2]))
+            fid.write("#Z {} {} {}\n".format(
+                cell[2, 0], cell[2, 1], cell[2, 2]))
+            fid.write("#W 1\n")
+            fid.write("#E 1.0\n")
+            fid.write("#S 0 0 0 0 0 0\n")
+            fid.write("#F\n")
+            for i in range(natm):
                 for k in range(len(symbols)):
                     if allsymbos[i] == symbols[k]:
-                        fout.write("%d %d %12.7f %12.7f %12.7f\n"
-                                   % (i + 1, k + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
-        fout.close()
+                        fid.write("0 %12.7f %12.7f %12.7f 0.0 0.0 0.0\n"
+                                  % (positions[i, 0], positions[i, 1], positions[i, 2]))
+        fid.close()
         return
 
     def write_lmp_coords(self, atoms, filename="lmp_coord"):
         positions = atoms.get_positions()
-        atom_num = len(positions)
-
+        natm = len(positions)
         with open(filename, mode="w") as fid:
-            fid.write("%d\n" % (atom_num))
-            for i in range(atom_num):
+            fid.write("%d\n" % (natm))
+            for i in range(natm):
                 fid.write("%d  %f  %f  %f \n"
                           % (i + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
             fid.close()
         return
 
     def write_poscar(self, atoms, filename="POSCAR"):
-        ase.io.write(filename=filename,
-                     images=atoms,
-                     format='vasp')
+        ase.io.write(filename=filename, images=atoms, format='vasp')
         os.system("cp POSCAR POSCAR.vasp")
         return
 
@@ -508,7 +566,7 @@ class fcc(gnStructure, add_strain):
 
         new_cell = strain * new_cell
 
-        atoms.set_cell(new_cell) 
+        atoms.set_cell(new_cell)
         atoms.set_positions(org_positions)
 
         self.write_config_output(atoms)
@@ -536,13 +594,12 @@ class hcp(gnStructure, add_strain):
         return
 
     def set_hcp_convention(self, in_size=(1, 1, 1)):
-        atoms = \
-            Hexagonal.HexagonalClosedPacked(
-                latticeconstant={'a': self.pot['ahcp'],
-                                 'c': self.pot['chcp']},
-                size=in_size,
-                symbol=self.pot["element"],
-                pbc=(1, 1, 1))
+        atoms = Hexagonal.HexagonalClosedPacked(
+            latticeconstant={'a': self.pot['ahcp'],
+                             'c': self.pot['chcp']},
+            size=in_size,
+            symbol=self.pot["element"],
+            pbc=(1, 1, 1))
         print atoms.get_cell()
         return atoms
 
