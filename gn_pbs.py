@@ -67,7 +67,7 @@ class gn_pbs(object):
     def get_job_name(self):
         list = ["A", "B", "C"]
         jobname = '-'.join(list)
-        print jobname
+        print(jobname)
         return
 
     def copy_inputs(self, dirname, *args):

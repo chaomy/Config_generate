@@ -35,8 +35,8 @@ class gn_md_infile(object):
                             ('read_data', 'init.txt'),
                             ('read_restart', 'init_restart')])
         if kwargs is not None:
-            for key, value in kwargs.iteritems():
-                if self.basics.has_key(key):
+            for key, value in kwargs.items():
+                if key in self.basics:
                     self.basics[key] = value
         return
 
@@ -50,7 +50,7 @@ class gn_md_infile(object):
 
     def write_cu3au_infile(self,
                            input_size=None):
-        from gn_md_input_cu3au import gn_md_input_cu3au
+        from .gn_md_input_cu3au import gn_md_input_cu3au
         _drv = gn_md_input_cu3au()
 
         if input_size is None:
@@ -63,48 +63,48 @@ class gn_md_infile(object):
         return
 
     def write_mgnd_infile(self, fname, param):
-        from gn_md_input_mgnd import gn_md_input_mgnd
+        from .gn_md_input_mgnd import gn_md_input_mgnd
         _drv = gn_md_input_mgnd()
         _drv._write_mg_nd_inter_phase(fname, param)
         return
 
     def write_hcp_lattice_infile(self, fname="in.hcp",
                                  element='Nb'):
-        from gn_md_input_hcp_lattice import gn_md_input_hcp_lattice
+        from .gn_md_input_hcp_lattice import gn_md_input_hcp_lattice
         _drv = gn_md_input_hcp_lattice()
         _drv._write_hcp_lattice(fname)
         return
 
     def write_fcc_lattie_infile(self, fname="in.fcc",
                                 element='Nb'):
-        from gn_md_input_fcc_lattice import gn_md_input_fcc_lattice
+        from .gn_md_input_fcc_lattice import gn_md_input_fcc_lattice
         _drv = gn_md_input_fcc_lattice()
         _drv._write_fcc_lattice(fname)
         return
 
     def write_bcc_lattice_infile(self,
                                  fname="in.bcc"):
-        from gn_md_input_bcc_lattice import gn_md_input_bcc_lattice
+        from .gn_md_input_bcc_lattice import gn_md_input_bcc_lattice
         _drv = gn_md_input_bcc_lattice()
         _drv._write_bcc_lattice(fname)
         return
 
     def gn_gsf_minimize(self,
                         config_file="in.gsf", tag='relaxed'):
-        from gn_md_input_gsf import gn_md_input_gsf
+        from .gn_md_input_gsf import gn_md_input_gsf
         _drv = gn_md_input_gsf()
         _drv._write_gsf_minimize(config_file, tag)
         return
 
     def gn_md_input_vacancy(self,
                             config_file='in.vacancy'):
-        from gn_md_input_vacancy import gn_md_input_vacancy
+        from .gn_md_input_vacancy import gn_md_input_vacancy
         _drv = gn_md_input_vacancy()
         _drv._write_input_vacancy(config_file)
         return
 
     def gn_md_input_vacancy_migration(self):
-        from gn_md_input_vacancy import gn_md_input_vacancy
+        from .gn_md_input_vacancy import gn_md_input_vacancy
         _drv = gn_md_input_vacancy()
 
         _drv._write_neb_init('init.txt')
@@ -115,12 +115,12 @@ class gn_md_infile(object):
     def write_md_thermo_expand(self,
                                *args,
                                **kwargs):
-        from gn_md_input_thermo import gn_md_input_thermo
+        from .gn_md_input_thermo import gn_md_input_thermo
         _drv = gn_md_input_thermo(**self.basics)
         if args is not None:
             for arg in args:
                 if arg == 'init':
-                    print "find "
+                    print("find ")
                     _drv._write_equilibrium(**kwargs)
                     return
         _drv._write_run_npt(**kwargs)

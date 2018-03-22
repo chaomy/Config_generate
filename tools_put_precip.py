@@ -41,7 +41,7 @@ class paradis_precip_tools(object):
 
         cent = 0.5 * (pB + pA)
         pos = cent + norm_v
-        print pos
+        print(pos)
         return
 
     def tools_rotate_shear(self):
@@ -59,9 +59,9 @@ class paradis_precip_tools(object):
                            [n[0], n[1], n[2]]
                            ])
 
-        print new_cord
+        print(new_cord)
         new_shear = new_cord.transpose() * -shear_xy * new_cord
-        print 1e9 * new_shear
+        print(1e9 * new_shear)
         return
 
 if __name__ == '__main__':

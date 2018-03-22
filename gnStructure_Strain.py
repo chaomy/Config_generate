@@ -35,7 +35,7 @@ class Structure(object):
                                         symbol = 'Cu',
                                         pbc = (1,1,1))
 
-        print "Cu is", atomsCu.get_number_of_atoms()
+        print("Cu is", atomsCu.get_number_of_atoms())
         ase.io.write(filename = "Cu.cfg",
                         images = atomsCu,
                         format = 'cfg')
@@ -65,7 +65,7 @@ class Structure(object):
         atomsCu.set_cell(NewCell)
         atomsCu.set_positions(Positions)
 
-        print  "the cell is", atoms.get_cell()
+        print("the cell is", atoms.get_cell())
 
         ase.io.write(filename = "Cu3Au.cfg",
                         images = atomsCu,
@@ -144,7 +144,7 @@ class Structure(object):
     def read_cfg(self, filename):
         with open(filename, 'r') as fid:
             Raw = fid.read()
-        print Raw
+        print(Raw)
         xyz = re.compile(r"([+\-]?\d*\.\d*e[+\-]?\d+) ([+\-]?\d*\.\d*e[+\-]?\d+) ([+\-]?\d*\.\d*e[+\-]?\d+)")
         element =  re.compile(r"(Cu|Au)")
         xhi = re.compile(r"H0\(1,1\)\s*=\s*(\d*.\d*)")
@@ -157,9 +157,9 @@ class Structure(object):
         Cell.append(float(xhi.findall(Raw)[0]))
         Cell.append(float(yhi.findall(Raw)[0]))
         Cell.append(float(zhi.findall(Raw)[0]))
-        print Cell
-        print float(xyzdata[0][0])
-        print float(xyzdata[1][0])
+        print(Cell)
+        print(float(xyzdata[0][0]))
+        print(float(xyzdata[1][0]))
         return (elementdata, xyzdata, Cell)
 
 

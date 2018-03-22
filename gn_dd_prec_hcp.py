@@ -7,7 +7,7 @@
 
 import numpy as np
 from numpy import cos, sin, pi
-import gn_dd_data_dat as dddat
+from . import gn_dd_data_dat as dddat
 
 
 class gn_dd_prec(object):
@@ -73,8 +73,8 @@ class gn_dd_prec(object):
             elif i % 3 == 2:
                 prec.rotate = self.set_prec_rotate((0., 0., 0.))
             prec.strain = self.set_prec_strain()
-            print "coord", prec.coords
-            print "size", prec.dimaxi
+            print("coord", prec.coords)
+            print("size", prec.dimaxi)
             self.precs.append(prec)
         return
 

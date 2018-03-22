@@ -3,12 +3,12 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-02-19 02:31:25
+# @Last Modified time: 2018-03-14 21:41:11
 
 # Be #
 from collections import OrderedDict
-from gn_dd_ctrl_hcp import *
-from gn_dd_ctrl_bcc import *
+from .gn_dd_ctrl_hcp import *
+from .gn_dd_ctrl_bcc import *
 
 
 class gn_dd_ctrl(object):
@@ -27,7 +27,7 @@ class gn_dd_ctrl(object):
         self.ctrlfile = '{}.ctrl'.format(self.job)
         self.precfile = '{}.dat'.format(self.job)
         self.datafile = '{}.data'.format(self.job)
-        print self.ctrlfile
+        print(self.ctrlfile)
 
     def write_mobility(self, fid):
         mobs = hcpmobs['Mg']
@@ -35,7 +35,7 @@ class gn_dd_ctrl(object):
         # mobs = bccmobs['Fe']
         # types = ['g']
         for tkey in types:
-            for key in mobs[tkey].keys():
+            for key in list(mobs[tkey].keys()):
                 fid.write(self.fmat.format(key, mobs[tkey][key]))
             fid.write(self.space)
         return fid
@@ -44,7 +44,7 @@ class gn_dd_ctrl(object):
         fid.write(self.divisionline)
         if ltype in ['stress']:
             key = 'appliedStress'
-            stress = self.cal_stress(scale=1e8)
+            stress = self.cal_stress(scale=-2.0e7)   # 10 to 20 Mpa
             fid.write('{:30} = '.format(key))
             fid.write('[{} {} {} {} {} {}]\n'.format(
                 stress[0], stress[1], stress[2],

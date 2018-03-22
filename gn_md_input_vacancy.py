@@ -1,26 +1,12 @@
 #!/usr/bin/env python
-# encoding: utf-8
-
-###################################################################
-#
-# File Name : gn_md_input_vacancy.py
-#
-###################################################################
-#
-# Purpose :
-#
-# Creation Date :
-# Last Modified : Sun Apr 30 22:49:44 2017
-# Created By    : Chaoming Yang
-#
-###################################################################
+# -*- coding: utf-8 -*-
+# @Author: chaomy
+# @Date:   2018-03-20 08:49:15
+# @Last Modified by:   chaomy
+# @Last Modified time: 2018-03-20 08:49:28
 
 
 class gn_md_input_vacancy(object):
-
-    def __init__(self):
-
-        return
 
     def _write_input_vacancy(self,
                              config_file,
@@ -57,7 +43,6 @@ minimize     1e-16      1e-16     100000     100000
                            potential_type,
                            potential_file,
                            element_name))
-        return
 
     def _write_neb_init(self,
                         config_file,
@@ -94,7 +79,6 @@ write_restart   init_restart
                            potential_type,
                            potential_file,
                            element_name))
-        return
 
     def _write_neb_final(self,
                          config_file,
@@ -131,7 +115,6 @@ minimize         1e-15  1e-15  100000  100000
                            potential_type,
                            potential_file,
                            element_name))
-        return
 
     def _write_neb_run(self,
                        config_file,
@@ -166,8 +149,4 @@ dump_modify  1  pad  5
 
 min_style     fire
 neb     0.0   0.02    100000    100000    200     final   final.coord
-""" % (config_file,
-                potential_type,
-                potential_file,
-                element_name))
-        return
+""" % (config_file, potential_type, potential_file, element_name))

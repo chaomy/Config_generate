@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-02-23 02:15:22
+# @Last Modified time: 2018-03-20 14:11:09
 
 
 import os
@@ -15,17 +15,295 @@ from ase.lattice.spacegroup import crystal
 import copy
 
 
-class gnStructure(object):
+class add_strain(object):
+
+    def __init__(self):
+        self._delta = 0.02
+
+    def volumetric_strain(self, delta=None):
+        # 3c11 + 6C12 #
+        if delta is None:
+            delta = self._delta
+        strain = np.mat([[1 + delta, 0, 0],
+                         [0, 1 + delta, 0],
+                         [0, 0, 1 + delta]], "float")
+        return strain
+
+    def volume_conserving_orthohombic(self, delta=None):
+        # 2C11 - 2c12 #
+        if delta is None:
+            delta = self._delta
+        # strain = np.mat([[1 + delta, 0, 0],
+        #                  [0, 1 - delta, 0],
+        #                  [0, 0, 1 / (1 - delta**2)]], 'float')
+        strain = np.mat([[1 / (1 - delta**2), 0., 0.],
+                         [0., 1 + delta, 0],
+                         [0., 0., 1 - delta]])
+        # strain = np.mat([[1 - delta, 0.0, 0.0],
+        #                  [0.0, 1. / (1 - delta**2), 0.0],
+        #                  [0.0, 0.0, 1 + delta]])
+        return strain
+
+    def volume_conserving_monoclinic(self, delta=None):
+        # 2c44 #
+        if delta is None:
+            delta = self._delta
+
+        # strain = np.mat([[1, delta, 0],
+        #                  [delta, 1, 0],
+        #                  [0, 0, 1 / (1 - delta**2)]], 'float')
+        strain = np.mat([[1. / (1 - delta**2), 0.0, 0.0],
+                         [0.0, 1.0, delta],
+                         [0.0, delta, 1.0]])
+        # strain = np.mat([[1.0, 0.0, delta],
+        #                  [0.0, 1. / (1 - delta**2), 0.0],
+        #                  [delta, 0.0, 1.0]])
+        return strain
+
+
+class bcc(object):
+
+    def set_bcc_primitive_direction(self):
+        self._primitive_directions = np.array([[-0.5, 0.5, 0.5],
+                                               [0.5, -0.5, 0.5],
+                                               [0.5, 0.5, -0.5]])
+
+    def set_bcc_primitive(self, size=(1, 1, 1)):
+        atoms = ase.atoms.Atoms(symbols=self.pot["element"],
+                                positions=[(0, 0, 0)],
+                                info={'unit_cell': 'primitive'},
+                                pbc=(1, 1, 1))
+        self.set_bcc_primitive_direction()
+        cell = self._primitive_directions * self.pot['latbcc']
+        atoms.set_cell(cell, scale_atoms=True)
+        # atoms = atoms.repeat(size)
+        return atoms
+
+    def write_bcc_primitive(self, size=None):
+        atoms = self.set_bcc_primitive(size)
+        self.write_config_output(atoms)
+
+    def set_bcc_convention(self, directions=None, size=(1, 1, 1)):
+        if directions is None:
+            directions = self._default_direction
+        atoms = Cubic.BodyCenteredCubic(directions=directions,
+                                        latticeconstant=self.pot['latbcc'],
+                                        size=size,
+                                        symbol=self.pot['element'],
+                                        pbc=(1, 1, 1))
+        atoms.wrap()
+        return atoms
+
+    def write_bcc_convention(self, in_direction, size=(1, 1, 1)):
+        atoms = self.set_bcc_convention(in_direction, size)
+        self.write_config_output(atoms)
+
+    def write_bcc_with_strain(self,
+                              delta=None,
+                              in_tag='ortho',
+                              size=None,
+                              write=False):
+
+        if in_tag == 'ortho' or in_tag == 'c12':
+            strain = self.volume_conserving_orthohombic(delta)
+        elif in_tag == 'mono' or in_tag == 'c44':
+            strain = self.volume_conserving_monoclinic(delta)
+        elif in_tag == 'volume' or in_tag == 'c11':
+            strain = self.volumetric_strain(delta)
+
+        atoms = self.set_bcc_convention(size)
+        org_cell = atoms.get_cell()
+        new_cell = copy.deepcopy(org_cell)
+
+        org_positions = np.mat(atoms.get_positions())
+        org_positions = org_positions * strain
+
+        new_cell = strain * new_cell
+        atoms.set_cell(new_cell)
+        atoms.set_positions(org_positions)
+        if write is True:
+            self.write_config_output(atoms)
+        return atoms
+
+    def write_bcc_primitive_with_strain(self,
+                                        delta=None,
+                                        in_tag=None,
+                                        size=None,
+                                        strain=None,
+                                        write=True):
+        if strain is None:
+            if in_tag == 'ortho' or in_tag == 'c12':
+                strain = self.volume_conserving_orthohombic(delta)
+            elif in_tag == 'mono' or in_tag == 'c44':
+                strain = self.volume_conserving_monoclinic(delta)
+            elif in_tag == 'volume' or in_tag == 'c11':
+                strain = self.volumetric_strain(delta)
+
+        atoms = self.set_bcc_primitive(size)
+        org_cell = atoms.get_cell()
+        new_cell = copy.deepcopy(org_cell)
+
+        org_positions = np.mat(atoms.get_positions())
+        org_positions = org_positions * strain
+
+        new_cell = strain * new_cell
+        atoms.set_cell(new_cell)
+        atoms.set_positions(org_positions)
+
+        if write is True:
+            self.write_config_output(atoms)
+        return atoms
+
+    def example_of_crystal(self):
+        a = 3.3
+        Nb = crystal('Nb',
+                     [(0, 0, 0)],
+                     spacegroup=229,
+                     cellpar=[a, a, a, 90, 90, 90],
+                     primitive_cell=True)
+        print(Nb.get_cell())
+        Nb.write('geometry_Bcc.in')
+
+
+class fcc(object):
+
+    def set_fcc_primitive_direction(self):
+        self._primitive_directions = np.array([[0.0, 0.5, 0.5],
+                                               [0.5, 0, 0.5],
+                                               [0.5, 0.5, 0.0]], 'float')
+
+    def set_fcc_primitive(self, size=None):
+        if size == None:
+            size = (1, 1, 1)
+        atoms = ase.atoms.Atoms(symbols=self.pot["element"],
+                                positions=[(0, 0, 0)],
+                                info={'unit_cell': 'primitive'},
+                                pbc=(1, 1, 1))
+
+        self.set_fcc_primitive_direction()
+        cell = self._primitive_directions * self.pot['latfcc']
+        atoms.set_cell(cell, scale_atoms=True)
+        atoms2 = atoms.repeat(size)
+        return atoms2
+
+    def set_fcc_convention(self, directions=None, size=(1, 1, 1)):
+        if directions is None:
+            l_direction = self._default_direction
+        atoms = Cubic.FaceCenteredCubic(directions=l_direction,
+                                        latticeconstant=self.pot['latfcc'],
+                                        size=size,
+                                        symbol=self.pot["element"],
+                                        pbc=(1, 1, 1))
+        return atoms
+
+    def write_fcc_convention(self, size=None):
+        atoms = self.set_fcc_convention(size)
+        self.write_config_output(atoms)
+
+    def write_fcc_primitive(self, size=None):
+        atoms = self.set_fcc_primitive(size)
+        self.write_config_output(atoms)
+
+    def write_fcc_with_strain(self,
+                              delta=None,
+                              in_tag='ortho',
+                              size=None):
+        if in_tag == 'ortho':
+            strain = self.volume_conserving_orthohombic(delta)
+        elif in_tag == 'mono':
+            strain = self.volume_conserving_monoclinic(delta)
+        elif in_tag == 'volume':
+            strain = self.volumetric_strain(delta)
+
+        atoms = self.set_fcc_convention(size)
+
+        org_cell = atoms.get_cell()
+        new_cell = copy.deepcopy(org_cell)
+
+        org_positions = np.mat(atoms.get_positions())
+        org_positions = org_positions * strain
+
+        new_cell = strain * new_cell
+        atoms.set_cell(new_cell)
+        atoms.set_positions(org_positions)
+
+        self.write_config_output(atoms)
+
+    def write_fcc_primitive_with_strain(self,
+                                        delta=None,
+                                        in_tag=None,
+                                        size=None):
+        if in_tag == 'ortho' or in_tag == 'c12':
+            strain = self.volume_conserving_orthohombic(delta)
+        elif in_tag == 'mono' or in_tag == 'c44':
+            strain = self.volume_conserving_monoclinic(delta)
+        elif in_tag == 'volume' or in_tag == 'c11':
+            strain = self.volumetric_strain(delta)
+
+        atoms = self.set_fcc_primitive(size)
+
+        org_cell = atoms.get_cell()
+        new_cell = copy.deepcopy(org_cell)
+
+        org_positions = np.mat(atoms.get_positions())
+        org_positions = org_positions * strain
+
+        new_cell = strain * new_cell
+
+        atoms.set_cell(new_cell)
+        atoms.set_positions(org_positions)
+
+        self.write_config_output(atoms)
+
+
+class hcp(object):
+
+    def set_hcp_lattice_constant_ratio(self,
+                                       ta=np.sqrt(3) / 2.,
+                                       tb=np.sqrt(8. / 3.)):
+        self.pot['ahcp'] = self.pot['lattice'] * ta
+        self.pot['chcp'] = self.pot['ahcp'] * tb
+
+    def set_hcp_direction(self):
+        self.hcp_directions = np.array([[1, 0, 0],
+                                        [-0.5, np.sqrt(3) / 2, 0],
+                                        [0, 0, np.sqrt(8. / 3)]])
+
+    def set_hcp_convention(self, size=(1, 1, 1)):
+        atoms = Hexagonal.HexagonalClosedPacked(
+            latticeconstant={'a': self.pot['ahcp'],
+                             'c': self.pot['chcp']},
+            size=size,
+            symbol=self.pot["element"],
+            pbc=(1, 1, 1))
+        print(atoms.get_cell())
+        return atoms
+
+    def write_hcp_convention(self, size=None):
+        atoms = self.set_hcp_convention(size=size)
+        self.write_config_output(atoms)
+
+    def write_hcp_poscar(self, alat):
+        with open("POSCAR", 'w') as fid:
+            fid.write("""hcp
+    %f
+   1.00000         0.00000000000000      0.00000
+  -0.50000         0.86602540378444      0.00000
+   0.00000         0.00000000000000      1.7320
+2
+direct
+   0.00000000000000    0.00000000000000      0.000000
+   0.33333333333333    0.66666666666667      0.500000
+            """ % (alat))
+
+
+class gnStructure(bcc, fcc, hcp, add_strain):
 
     def __init__(self, pot=None):
-        self._cartition = [[1, 0, 0],
-                           [0, 1, 0],
-                           [0, 0, 1]]
+        add_strain.__init__(self)
         self._default_direction = [[1, 0, 0],
                                    [0, 1, 0],
                                    [0, 0, 1]]
-        self._default_size = (5, 5, 5)
-        self._config_file_format = 'vasp'
 
     def mymkdir(self, dirname):
         if not os.path.isdir(dirname):
@@ -37,15 +315,15 @@ class gnStructure(object):
         fix_list = np.array([107, 103, 105, 122, 124, 84])
         cell = atoms.get_cell()
         positions = atoms.get_positions()
-        print positions
+        print(positions)
         with open("POSCAR", 'w') as fid:
             fid.write("W\n")
             fid.write("1\n")
-            fid.write("%12.6f %12.6f %12.6f\n" %
+            fid.write("%12.9f %12.9f %12.9f\n" %
                       (cell[0, 0], cell[0, 1], cell[0, 2]))
-            fid.write("%12.6f %12.6f %12.6f\n" %
+            fid.write("%12.9f %12.9f %12.9f\n" %
                       (cell[1, 0], cell[1, 1], cell[1, 2]))
-            fid.write("%12.6f %12.6f %12.6f\n" %
+            fid.write("%12.9f %12.9f %12.9f\n" %
                       (cell[2, 0], cell[2, 1], cell[2, 2]))
             fid.write("W\n")
             fid.write("%d\n" % (len(atoms)))
@@ -53,12 +331,12 @@ class gnStructure(object):
             fid.write("Cartesian\n")
             for i in range(len(atoms)):
                 if ((i == fix_list).any()):
-                    fid.write("%12.6f %12.6f %12.6f   T   T   F\n"
+                    fid.write("%12.9f %12.9f %12.9f   T   T   F\n"
                               % (positions[i, 0],
                                  positions[i, 1],
                                  positions[i, 2]))
                 else:
-                    fid.write("%12.6f %12.6f %12.6f   T   T   T\n"
+                    fid.write("%12.9f %12.9f %12.9f   T   T   T\n"
                               % (positions[i, 0],
                                  positions[i, 1],
                                  positions[i, 2]))
@@ -67,7 +345,7 @@ class gnStructure(object):
 
     def vasp_intro_alloy(self):
         atoms = ase.io.read(filename="POSCAR", format='vasp')
-        print atoms
+        print(atoms)
         alloy_num = 0
         for atom in atoms:
             if np.random.rand() < 0.1:
@@ -77,29 +355,29 @@ class gnStructure(object):
         with open("POSCAR", 'w') as fid:
             fid.write("W   Re\n")
             fid.write("1\n")
-            fid.write("%12.6f %12.6f %12.6f\n" %
+            fid.write("%12.9f %12.9f %12.9f\n" %
                       (cell[0, 0], cell[0, 1], cell[0, 2]))
-            fid.write("%12.6f %12.6f %12.6f\n" %
+            fid.write("%12.9f %12.9f %12.9f\n" %
                       (cell[1, 0], cell[1, 1], cell[1, 2]))
-            fid.write("%12.6f %12.6f %12.6f\n" %
+            fid.write("%12.9f %12.9f %12.9f\n" %
                       (cell[2, 0], cell[2, 1], cell[2, 2]))
             fid.write("W   Re\n")
             fid.write("%d   %d\n" % ((len(atoms) - alloy_num), alloy_num))
             fid.write("Cartesian\n")
             for atom in atoms:
                 if atom.symbol == 'W':
-                    fid.write("%12.6f %12.6f %12.6f\n"
+                    fid.write("%12.9f %12.9f %12.9f\n"
                               % (atom.position[0], atom.position[1], atom.position[2]))
             for atom in atoms:
                 if atom.symbol == 'Re':
-                    fid.write("%12.6f %12.6f %12.6f\n"
+                    fid.write("%12.9f %12.9f %12.9f\n"
                               % (atom.position[0], atom.position[1], atom.position[2]))
             fid.close()
         os.system("cp POSCAR POSCAR.vasp")
 
     def cut_plane_for_vacancy(self, atoms):
         cell = atoms.get_cell()
-        print cell[2, 2]
+        print(cell[2, 2])
         keep_atom = cell[2, 2] - 14.0
         index_list = []
 
@@ -140,14 +418,13 @@ class gnStructure(object):
         out_cell[2, 0], out_cell[2, 1], out_cell[2, 2] = cx, cy, cz
         return out_cell
 
-    # with charge
     def write_lmp_config_data_charge(self, atoms, filename="lmp_init.txt"):
         pos = atoms.get_positions()
         natm = len(pos)
         cell = atoms.get_cell()
         allsymbos = atoms.get_chemical_symbols()
         symbols = np.unique(allsymbos)
-        print symbols
+        print(symbols)
         with open(filename, mode="w") as fid:
             fid.write("#lmp data config")
             fid.write("\n")
@@ -164,16 +441,15 @@ class gnStructure(object):
                 for k in range(len(symbols)):
                     if allsymbos[i] == symbols[k]:
                         if k in [0, 1, 2]:
-                            fid.write("%d %d %g %12.7f %12.7f %12.7f\n"
+                            fid.write("%d %d %g %12.9f %12.9f %12.9f\n"
                                       % (i + 1, k + 1, 0, pos[i, 0], pos[i, 1], pos[i, 2]))
                         elif k in [3]:
-                            fid.write("%d %d %g %12.7f %12.7f %12.7f\n"
+                            fid.write("%d %d %g %12.9f %12.9f %12.9f\n"
                                       % (i + 1, k + 1, 3, pos[i, 0], pos[i, 1], pos[i, 2]))
                         elif k in [4]:
-                            fid.write("%d %d %g %12.7f %12.7f %12.7f\n"
+                            fid.write("%d %d %g %12.9f %12.9f %12.9f\n"
                                       % (i + 1, k + 1, -2, pos[i, 0], pos[i, 1], pos[i, 2]))
         fid.close()
-        return
 
     def write_poscar_fix(self, atoms, filename="POSCAR"):
         positions = atoms.get_positions()
@@ -193,11 +469,11 @@ class gnStructure(object):
         with open(filename, "w") as fid:
             fid.write("poscar\n")
             fid.write("1\n")
-            fid.write("%12.6f %12.6f %12.6f\n" %
+            fid.write("%12.9f %12.9f %12.9f\n" %
                       (cell[0, 0], cell[0, 1], cell[0, 2]))
-            fid.write("%12.6f %12.6f %12.6f\n" %
+            fid.write("%12.9f %12.9f %12.9f\n" %
                       (cell[1, 0], cell[1, 1], cell[1, 2]))
-            fid.write("%12.6f %12.6f %12.6f\n" %
+            fid.write("%12.9f %12.9f %12.9f\n" %
                       (cell[2, 0], cell[2, 1], cell[2, 2]))
             for i in range(len(symbols)):
                 fid.write("{} ".format(symbols[i]))
@@ -210,7 +486,7 @@ class gnStructure(object):
             for k in range(len(symbols)):
                 for i in range(natm):
                     if (allsymbos[i] == symbols[k]):
-                        fid.write("%12.7f %12.7f %12.7f F F T\n"
+                        fid.write("%12.9f %12.9f %12.9f F F T\n"
                                   % (positions[i, 0], positions[i, 1], positions[i, 2]))
         fid.close()
 
@@ -235,7 +511,7 @@ class gnStructure(object):
             for i in range(natm):
                 for k in range(len(symbols)):
                     if allsymbos[i] == symbols[k]:
-                        fid.write("%d %d %12.7f %12.7f %12.7f\n"
+                        fid.write("%d %d %12.9f %12.9f %12.9f\n"
                                   % (i + 1, k + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
         fid.close()
 
@@ -245,7 +521,7 @@ class gnStructure(object):
         cell = atoms.get_cell()
         allsymbos = atoms.get_chemical_symbols()
         symbols = np.unique(allsymbos)
-        print symbols
+        print(symbols)
         with open(filename, mode="w") as fid:
             fid.write("#N {} 1\n".format(natm))
             fid.write("#C Nb\n")
@@ -263,7 +539,7 @@ class gnStructure(object):
             for i in range(natm):
                 for k in range(len(symbols)):
                     if allsymbos[i] == symbols[k]:
-                        fid.write("0 %12.7f %12.7f %12.7f 0.0 0.0 0.0\n"
+                        fid.write("0 %12.9f %12.9f %12.9f 0.0 0.0 0.0\n"
                                   % (positions[i, 0], positions[i, 1], positions[i, 2]))
         fid.close()
 
@@ -276,339 +552,3 @@ class gnStructure(object):
                 fid.write("%d  %f  %f  %f \n"
                           % (i + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
             fid.close()
-
-    def write_poscar(self, atoms, filename="POSCAR"):
-        ase.io.write(filename=filename, images=atoms, format='vasp')
-        os.system("cp POSCAR POSCAR.vasp")
-
-    def write_lmp_cfg(self, atoms,
-                      filename=None):
-        if filename is None:
-            locfilename = "lmp_init.cfg"
-        else:
-            locfilename = filename
-        ase.io.write(filename=locfilename,
-                     images=atoms,
-                     format='cfg')
-
-    def set_config_file_format(self, in_format):
-        self._config_file_format = in_format
-
-    def write_config_output(self, atoms):
-        if self._config_file_format == 'vasp':
-            self.write_poscar(atoms)
-        elif self._config_file_format == 'lmp':
-            self.write_lmp_cfg(atoms)
-
-    def set_directions(self, direction):
-        self._directions = direction
-
-    def set_size(self, in_size):
-        self._default_size = in_size
-
-
-class add_strain(object):
-
-    def __init__(self):
-        self._delta = 0.02
-        return
-
-    def volumetric_strain(self, delta=None):
-        # 3c11 + 6C12 #
-        if delta is None:
-            delta = self._delta
-        strain = np.mat([[1 + delta, 0, 0],
-                         [0, 1 + delta, 0],
-                         [0, 0, 1 + delta]], "float")
-        return strain
-
-    def volume_conserving_orthohombic(self, delta=None):
-        # 2C11 - 2c12 #
-        if delta is None:
-            delta = self._delta
-        strain = np.mat([[1 + delta, 0, 0],
-                         [0, 1 - delta, 0],
-                         [0, 0, 1 / (1 - delta**2)]], 'float')
-        return strain
-
-    def volume_conserving_monoclinic(self, delta=None):
-        # 2c44 #
-        if delta is None:
-            delta = self._delta
-        strain = np.mat([[1, delta, 0],
-                         [delta, 1, 0],
-                         [0, 0, 1 / (1 - delta**2)]], 'float')
-        return strain
-
-
-class bcc(gnStructure, add_strain):
-
-    def __init__(self, pot=None):
-        self.pot = pot
-        gnStructure.__init__(self, self.pot)
-        add_strain.__init__(self)
-        return
-
-    def set_bcc_primitive_direction(self):
-        self._primitive_directions = np.array([[-0.5, 0.5, 0.5],
-                                               [0.5, -0.5, 0.5],
-                                               [0.5, 0.5, -0.5]])
-        return
-
-    def set_bcc_primitive(self, in_size=(1, 1, 1)):
-        atoms = ase.atoms.Atoms(symbols=self.pot["element"],
-                                positions=[(0, 0, 0)],
-                                info={'unit_cell': 'primitive'},
-                                pbc=(1, 1, 1))
-
-        self.set_bcc_primitive_direction()
-        cell = self._primitive_directions * self.pot['latbcc']
-        atoms.set_cell(cell, scale_atoms=True)
-        # atoms = atoms.repeat(in_size)
-        return atoms
-
-    def write_bcc_primitive(self, in_size=None):
-        atoms = self.set_bcc_primitive(in_size)
-        self.write_config_output(atoms)
-        return
-
-    def set_bcc_convention(self,
-                           in_direction=None, in_size=(1, 1, 1)):
-        if in_direction is None:
-            in_direction = self._default_direction
-        atoms = Cubic.BodyCenteredCubic(directions=in_direction,
-                                        latticeconstant=self.pot['latbcc'],
-                                        size=in_size,
-                                        symbol=self.pot['element'],
-                                        pbc=(1, 1, 1))
-        atoms.wrap()  #
-        return atoms
-
-    def write_bcc_convention(self, in_direction, in_size=(1, 1, 1)):
-        atoms = self.set_bcc_convention(in_direction, in_size)
-        self.write_config_output(atoms)
-        return
-
-    def write_bcc_with_strain(self,
-                              delta=None,
-                              in_tag='ortho',
-                              in_size=None,
-                              write=False):
-
-        if in_tag == 'ortho' or in_tag == 'c12':
-            strain = self.volume_conserving_orthohombic(delta)
-        elif in_tag == 'mono' or in_tag == 'c44':
-            strain = self.volume_conserving_monoclinic(delta)
-        elif in_tag == 'volume' or in_tag == 'c11':
-            strain = self.volumetric_strain(delta)
-
-        atoms = self.set_bcc_convention(in_size)
-        org_cell = atoms.get_cell()
-        new_cell = copy.deepcopy(org_cell)
-
-        org_positions = np.mat(atoms.get_positions())
-        org_positions = org_positions * strain
-
-        new_cell = strain * new_cell
-        atoms.set_cell(new_cell)
-        atoms.set_positions(org_positions)
-        if write is True:
-            self.write_config_output(atoms)
-        return atoms
-
-    def write_bcc_primitive_with_strain(self,
-                                        delta=None,
-                                        in_tag=None,
-                                        in_size=None,
-                                        strain=None,
-                                        write=True):
-        if strain is None:
-            if in_tag == 'ortho' or in_tag == 'c12':
-                strain = self.volume_conserving_orthohombic(delta)
-            elif in_tag == 'mono' or in_tag == 'c44':
-                strain = self.volume_conserving_monoclinic(delta)
-            elif in_tag == 'volume' or in_tag == 'c11':
-                strain = self.volumetric_strain(delta)
-
-        atoms = self.set_bcc_primitive(in_size)
-        org_cell = atoms.get_cell()
-        new_cell = copy.deepcopy(org_cell)
-
-        org_positions = np.mat(atoms.get_positions())
-        org_positions = org_positions * strain
-
-        new_cell = strain * new_cell
-        atoms.set_cell(new_cell)
-        atoms.set_positions(org_positions)
-
-        if write is True:
-            self.write_config_output(atoms)
-        return atoms
-
-    def example_of_crystal(self):
-        a = 3.3
-        Nb = crystal('Nb',
-                     [(0, 0, 0)],
-                     spacegroup=229,
-                     cellpar=[a, a, a, 90, 90, 90],
-                     primitive_cell=True)
-        print Nb.get_cell()
-        Nb.write('geometry_Bcc.in')
-        return
-
-
-class fcc(gnStructure, add_strain):
-
-    def __init__(self, pot=None):
-        gnStructure.__init__(self, pot)
-        add_strain.__init__(self)
-        return
-
-    def set_fcc_primitive_direction(self):
-        self._primitive_directions = np.array([[0.0, 0.5, 0.5],
-                                               [0.5, 0, 0.5],
-                                               [0.5, 0.5, 0.0]], 'float')
-        return
-
-    def set_fcc_primitive(self, in_size=None):
-        if in_size == None:
-            in_size = (1, 1, 1)
-        atoms = ase.atoms.Atoms(symbols=self.pot["element"],
-                                positions=[(0, 0, 0)],
-                                info={'unit_cell': 'primitive'},
-                                pbc=(1, 1, 1))
-
-        self.set_fcc_primitive_direction()
-        cell = self._primitive_directions * self.pot['latfcc']
-        atoms.set_cell(cell, scale_atoms=True)
-        atoms2 = atoms.repeat(in_size)
-        return atoms2
-
-    def set_fcc_convention(self,
-                           in_direction=None,
-                           in_size=(4, 4, 4)):
-        l_size = in_size
-        if in_direction is not None:
-            l_direction = in_direction
-        else:
-            l_direction = self._default_direction
-
-        atoms = Cubic.FaceCenteredCubic(directions=l_direction,
-                                        latticeconstant=self.pot['latfcc'],
-                                        size=l_size,
-                                        symbol=self.pot["element"],
-                                        pbc=(1, 1, 1))
-        return atoms
-
-    def write_fcc_convention(self, in_size=None):
-        atoms = self.set_fcc_convention(in_size)
-        self.write_config_output(atoms)
-        return
-
-    def write_fcc_primitive(self, in_size=None):
-        atoms = self.set_fcc_primitive(in_size)
-        self.write_config_output(atoms)
-        return
-
-    def write_fcc_with_strain(self,
-                              delta=None,
-                              in_tag='ortho',
-                              in_size=None):
-        if in_tag == 'ortho':
-            strain = self.volume_conserving_orthohombic(delta)
-        elif in_tag == 'mono':
-            strain = self.volume_conserving_monoclinic(delta)
-        elif in_tag == 'volume':
-            strain = self.volumetric_strain(delta)
-
-        atoms = self.set_fcc_convention(in_size)
-
-        org_cell = atoms.get_cell()
-        new_cell = copy.deepcopy(org_cell)
-
-        org_positions = np.mat(atoms.get_positions())
-        org_positions = org_positions * strain
-
-        new_cell = strain * new_cell
-        atoms.set_cell(new_cell)
-        atoms.set_positions(org_positions)
-
-        self.write_config_output(atoms)
-        return
-
-    def write_fcc_primitive_with_strain(self,
-                                        delta=None,
-                                        in_tag=None,
-                                        in_size=None):
-        if in_tag == 'ortho' or in_tag == 'c12':
-            strain = self.volume_conserving_orthohombic(delta)
-        elif in_tag == 'mono' or in_tag == 'c44':
-            strain = self.volume_conserving_monoclinic(delta)
-        elif in_tag == 'volume' or in_tag == 'c11':
-            strain = self.volumetric_strain(delta)
-
-        atoms = self.set_fcc_primitive(in_size)
-
-        org_cell = atoms.get_cell()
-        new_cell = copy.deepcopy(org_cell)
-
-        org_positions = np.mat(atoms.get_positions())
-        org_positions = org_positions * strain
-
-        new_cell = strain * new_cell
-
-        atoms.set_cell(new_cell)
-        atoms.set_positions(org_positions)
-
-        self.write_config_output(atoms)
-        return
-
-
-class hcp(gnStructure, add_strain):
-
-    def __init__(self, pot=None):
-        gnStructure.__init__(self, pot)
-        add_strain.__init__(self)
-        return
-
-    def set_hcp_lattice_constant_ratio(self,
-                                       ta=np.sqrt(3) / 2.,
-                                       tb=np.sqrt(8. / 3.)):
-        self.pot['ahcp'] = self.pot['lattice'] * ta
-        self.pot['chcp'] = self.pot['ahcp'] * tb
-        return
-
-    def set_hcp_direction(self):
-        self.hcp_directions = np.array([[1, 0, 0],
-                                        [-0.5, np.sqrt(3) / 2, 0],
-                                        [0, 0, np.sqrt(8. / 3)]])
-        return
-
-    def set_hcp_convention(self, in_size=(1, 1, 1)):
-        atoms = Hexagonal.HexagonalClosedPacked(
-            latticeconstant={'a': self.pot['ahcp'],
-                             'c': self.pot['chcp']},
-            size=in_size,
-            symbol=self.pot["element"],
-            pbc=(1, 1, 1))
-        print atoms.get_cell()
-        return atoms
-
-    def write_hcp_convention(self, size=None):
-        atoms = self.set_hcp_convention(in_size=size)
-        self.write_config_output(atoms)
-        return
-
-    def write_hcp_poscar(self, alat):
-        with open("POSCAR", 'w') as fid:
-            fid.write("""hcp
-    %f
-   1.00000         0.00000000000000      0.00000
-  -0.50000         0.86602540378444      0.00000
-   0.00000         0.00000000000000      1.7320
-2
-direct
-   0.00000000000000    0.00000000000000      0.000000
-   0.33333333333333    0.66666666666667      0.500000
-            """ % (alat))
-        return

@@ -36,7 +36,7 @@ class AlloyStructure():
                                           symbol='Cu',
                                           pbc=(1, 1, 1))
 
-        print "Cu is", atomsCu.get_number_of_atoms()
+        print("Cu is", atomsCu.get_number_of_atoms())
 
         ase.io.write(filename="Cu.cfg",
                      images=atomsCu,

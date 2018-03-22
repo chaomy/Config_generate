@@ -3,19 +3,14 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-12-09 21:52:11
+# @Last Modified time: 2018-03-10 22:20:02
 
 
 from numpy import sqrt
 import numpy as np
 
-Mg = {'pois': 0.29,
-      'shearModulus': 17,
-      'cOVERa': 1.6236}
-
-Fe = {'pois': 0.291,
-      'shearModulus': 94.1}
-
+Mg = {'pois': 0.29, 'shearModulus': 17, 'cOVERa': 1.6236}
+Fe = {'pois': 0.291, 'shearModulus': 94.1}
 c = Mg['cOVERa']
 
 plnsb1 = {
@@ -168,6 +163,7 @@ class dd_dat:
     cell = None
     cellvol = None
     nnodes = None
+    totalnodes = None
     datfilev = 5
     precn = None
 

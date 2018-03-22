@@ -84,13 +84,13 @@ class MD_ChangeBox(object):
             else :
                 xnew.append(float(x[i])) ; ynew.append(float(y[i])); znew.append(float(z[i]))
                 coordN.append(coord1[i]) ; atomidN.append(atomid[i]); energyN.append(energy[i])
-        print "atom total: " , AtomNumber
-        print "atom deleted" , AtomNumber - len(xnew)
+        print("atom total: " , AtomNumber)
+        print("atom deleted" , AtomNumber - len(xnew))
         coeff = self.screw_coeff
         for i in range(len(xnew)):
             theta = np.arctan2((ynew[i] - yc),(xnew[i] - xc))
             dz = self.lattice_constant * coeff * theta
-            print dz
+            print(dz)
             znew[i] += dz
         with open("screw.cfg",'w') as fid:
             fid.write("Number of particles = %d\n"%(len(xnew)))
@@ -129,8 +129,8 @@ C
         for i in range(AtomNumber):
             xnew.append(float(xs[i])) ; ynew.append(float(ys[i])); znew.append(float(zs[i]))
         AtomNumberOut = len(xnew)
-        print AtomNumber
-        print "delete %d atoms"%(AtomNumber-AtomNumberOut)
+        print(AtomNumber)
+        print("delete %d atoms"%(AtomNumber-AtomNumberOut))
         for i in range(AtomNumberOut):
             theta = np.arctan2((ynew[i] - yc),(xnew[i] - xc1))
             dz = coeff * theta
@@ -197,7 +197,7 @@ C
                 check = False
                 body = (len(x) - np.mod(len(x), size))
                 xrem, yrem, zrem = x[body:], y[body:], z[body:]
-                print "Now in rank 0  x  and y size" , len(x), len(y) , len(z)
+                print("Now in rank 0  x  and y size" , len(x), len(y) , len(z))
         x_local, y_local, z_local  = np.zeros(LocalN_xc_yc[0]), np.zeros(LocalN_xc_yc[0]) , np.zeros(LocalN_xc_yc[0])
 
         comm.Scatter(x, x_local, root=0)
@@ -247,7 +247,7 @@ C
             xnew.append(float(xs[i])) ; ynew.append(float(ys[i])); znew.append(float(zs[i]))
             # ------------------- intro screw dislocation -------------
         AtomNumberOut = len(xnew)
-        print AtomNumber
+        print(AtomNumber)
         for i in range(AtomNumberOut):
             dx, dy = xnew[i] - xc , ynew[i] - yc
             theta = np.arctan2(dy, dx)
@@ -290,7 +290,7 @@ C
         coeff  = self.Edge_coeff
             # ----------------- intro Edge dislocation -------------
         AtomNumberOut = len(xs)
-        print   "Atom Number ", AtomNumber
+        print("Atom Number ", AtomNumber)
 
         for i in range(AtomNumberOut):
             dx , dy = xs[i] - xc , ys[i] - yc
@@ -344,13 +344,13 @@ C
                 if x[i] < xc and y[i] - yc < 0.01:
                     xnew.append(float(x[i])) ; ynew.append(float(y[i])); znew.append(float(z[i]))
                     coordN.append(coord1[i]) ; atomidN.append(atomid[i]); energyN.append(energy[i])
-                    print "delete"
+                    print("delete")
                 else :
                     xnew.append(float(x[i])) ; ynew.append(float(y[i])); znew.append(float(z[i]))
                     coordN.append(coord1[i]) ; atomidN.append(atomid[i]); energyN.append(energy[i])
         stress = 5.0 ; k1 = stress * np.sqrt(self.pi * lattice_constant) ; Pratio = 0.333 ; shearModule = 50.0
         coeff = k1 * np.sqrt(self.pi * 2)/(8 * shearModule * self.pi)
-        print coeff
+        print(coeff)
         for i in range(len(xnew)):
             dx , dy = xnew[i] - xc , ynew[i] - yc
             if dx == 0 : dx = 0.000000000001
@@ -421,8 +421,8 @@ C
                     uy  = 1./(u1-u2) * (u1 * q2 * SM.sqrt(np.cos(theta) - u2 * np.sin(theta)) - u2 * q1 * SM.sqrt(np.cos(theta) - u1 * np.sin(theta)))
                     ux  = coeff * ux.real
                     uy  = -coeff * uy.real
-                print ux
-                print uy
+                print(ux)
+                print(uy)
                 x[i] += ux
                 y[i] += uy
             return (x, y)
@@ -432,13 +432,13 @@ C
             filename = filelist[-1]
             x, y, z , AtomNumber, xlo, xhi, ylo, yhi, zlo, zhi, Atomid  = self.read_xyz(filename)
             local_n = np.array([AtomNumber/size])
-            print "in rank 0  x  and y size" , len(x), len(y)
+            print("in rank 0  x  and y size" , len(x), len(y))
         else :
             local_n = np.array([0])
             x, y = None, None
 
         comm.Bcast(local_n, root = 0)
-        print "local_n of %d is "%(rank), local_n
+        print("local_n of %d is "%(rank), local_n)
 
         if rank == 0:
             if (len(x) % size == 0):
@@ -449,18 +449,18 @@ C
                 xrem, yrem = x[body:], y[body:]
                 x , y = x[0:body], y[0:body]
                 xrem , yrem = np.array(xrem), np.array(yrem)
-            print "Now in rank 0  x  and y size" , len(x), len(y)
+            print("Now in rank 0  x  and y size" , len(x), len(y))
         else :
-            print "I am rank %d"%(rank)
+            print("I am rank %d"%(rank))
 
         xc , yc = 0, 0
         x_local = np.zeros(local_n)
         y_local = np.zeros(local_n)
 
         if rank == 0 :
-            print rank,  len(x_local) , len(y_local), len(x), len(y)
+            print(rank,  len(x_local) , len(y_local), len(x), len(y))
         if rank != 0 :
-            print rank,  len(x_local) , len(y_local), x, y
+            print(rank,  len(x_local) , len(y_local), x, y)
 
         comm.Scatter(x, x_local, root=0)
         comm.Scatter(y, y_local, root=0)
@@ -520,8 +520,8 @@ C
                 uy  = 1./(u1-u2) * (u1 * q2 * SM.sqrt(np.cos(theta) - u2 * np.sin(theta)) - u2 * q1 * SM.sqrt(np.cos(theta) - u1 * np.sin(theta)))
                 ux  = coeff * ux.real
                 uy  = -coeff * uy.real
-            print ux
-            print uy
+            print(ux)
+            print(uy)
             x[i] += ux
             y[i] += uy
         xlo , xhi, ylo, yhi = min(x) - 4 , max(x) + 4 , min(y) - 4 , max(y) + 4
@@ -562,21 +562,21 @@ class VA_ChangeBox(object):
             Raw = fid.readlines()
             fid.close()
         self.lattice_constant = float(Raw[1])
-        print self.lattice_constant
+        print(self.lattice_constant)
         H = np.zeros([3,3],"float")
         for i in range(3):
             for j in range(3):
                 H[i,j] = float(Raw[2 + i].split()[j])
         AtomNumber = int(Raw[5])
-        print AtomNumber
+        print(AtomNumber)
         Comm = str(Raw[6])
-        print Comm
+        print(Comm)
         AtomPosition = np.zeros([3, AtomNumber],"float")
         for j in range(AtomNumber):
             for i in range(3):
                 AtomPosition[i,j] = float(Raw[7 + j].split()[i])
-        print H
-        print AtomPosition
+        print(H)
+        print(AtomPosition)
         return AtomNumber, np.mat(H), Comm, AtomPosition
 
     def volume_conserving_Ortho_strain(self,delta):
@@ -616,7 +616,7 @@ class VA_ChangeBox(object):
     def Intro_Screw(self):
         AtomNumber, H, Comm, AtomPosition = self.read_pos()
         xc = 0.5 * H[0,0] ; yc = 0.5 * H[1,1]
-        print xc , yc
+        print(xc , yc)
         for i in range(AtomNumber):
             dx , dy = AtomPosition[0, i] - xc , AtomPosition[1, i] - yc
             theta = np.arctan2(dy, dx)
@@ -651,9 +651,9 @@ class VA_ChangeBox(object):
             dz2 = self.screw_coeff * theta2
             AtomPosition[2, i] = AtomPosition[2, i] + dz1 - dz2
         with open("OUT", 'w') as fid:
-            print >> fid , len(AtomPosition[0,:])
-            print >> fid, len(AtomPosition[1,:])
-            print >> fid , len(AtomPosition[2,:])
+            print(len(AtomPosition[0,:]), file=fid)
+            print(len(AtomPosition[1,:]), file=fid)
+            print(len(AtomPosition[2,:]), file=fid)
             fid.close()
 
         fig = plt.figure()

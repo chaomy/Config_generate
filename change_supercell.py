@@ -113,7 +113,7 @@ K_POINTS automatic
                                 re.DOTALL)
         PositionM = findPosition.findall(Raw)
         if PositionM:
-            print PositionM
+            print(PositionM)
 
         CellMatrix = np.zeros([3,3],"float")
         for i in range(3):
@@ -156,7 +156,7 @@ K_POINTS automatic
         NewMatrix = NewStrain * New_Cordi_M.transpose()
         NewMatrix = NewMatrix.transpose()
 
-        print NewMatrix
+        print(NewMatrix)
         NewMatrix = NewMatrix * Lattice
         self.gnInfile(NewMatrix , Newfilename)
         return

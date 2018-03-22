@@ -32,7 +32,7 @@ class gn_md_input_thermo(object):
                          ('run1', 100000)])
 
         if kwargs is not None:
-            for key, value in kwargs.iteritems():
+            for key, value in kwargs.items():
                 if key in defaults:
                     defaults[key] = value
 
@@ -72,7 +72,7 @@ write_restart  ../init_restart
                          ('run1', 100000)])
 
         if kwargs is not None:
-            for key, value in kwargs.iteritems():
+            for key, value in kwargs.items():
                 if key in defaults:
                     defaults[key] = value
 

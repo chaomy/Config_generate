@@ -3,11 +3,11 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-02-18 21:05:44
+# @Last Modified time: 2018-03-14 22:15:34
 
 import numpy as np
 from numpy import cos, sin, pi
-import gn_dd_data_dat as dddat
+from . import gn_dd_data_dat as dddat
 
 
 class gn_dd_prec(object):
@@ -17,20 +17,19 @@ class gn_dd_prec(object):
         # self.precfile = '{}.dat'.format(self.job)
         # self.precfile = 'prect.dat'
         self.precfile = 'onescrew.dat'
-        return
 
-    def set_num_prec(self, volfrac=0.16):
+    def set_num_prec(self, volfrac=0.0015):
         vol0 = volfrac * self.ddata.cellvol
-        print vol0
+        print(vol0)
         volsum = 0.0
         cnt = 0
         while True:
             volsum += np.prod(self.set_prec_size())
-            print volsum
+            print(volsum)
             cnt += 1
             if (volsum > vol0):
                 break
-        print "num precs", cnt
+        print("num precs", cnt)
 
     def single_sphere(self):
         self.ddata.precn = 1
@@ -43,8 +42,8 @@ class gn_dd_prec(object):
             prec.dimaxi = np.array([sz, sz, sz])
             prec.strain = self.set_prec_strain()
             prec.rotate = self.set_prec_rotate((0., 0., 0.))
-            print "coord", prec.coords
-            print "size", prec.dimaxi
+            print("coord", prec.coords)
+            print("size", prec.dimaxi)
             self.precs.append(prec)
 
     def gn_fcc_inplane_sphere(self):
@@ -66,7 +65,7 @@ class gn_dd_prec(object):
                 else:
                     y = -np.random.rand() * 0.5 * sz
                 z = -x + y
-                print y, z, cell[0, 1]
+                print(y, z, cell[0, 1])
                 if (np.abs(z) <= cell[0, 1]):
                     break
             prec.coords = np.array([x, y, z])
@@ -93,7 +92,7 @@ class gn_dd_prec(object):
 
     def hcp_beta1_prec(self):
         self.set_cell()
-        self.set_num_prec()
+        # self.set_num_prec()
         self.set_3d_prec()
         fid = self.write_precip_header()
         self.write_precip_data(fid)
@@ -115,7 +114,6 @@ class gn_dd_prec(object):
                     [-sin(psi), cos(psi), 0.],
                     [0., 0., 1.]])
         A = B * C * D
-        print "rotata", phi, A
         return A
 
     def set_prec_size(self):
@@ -139,7 +137,7 @@ class gn_dd_prec(object):
         pos[2] = 0.0
         return pos
 
-    def set_3d_prec(self, volfrac=0.016):
+    def set_3d_prec(self, volfrac=0.0015):
         self.precs = []
         vol0 = volfrac * self.ddata.cellvol
         volsum = 0.0
@@ -147,10 +145,14 @@ class gn_dd_prec(object):
         while True:
             cnt += 1
             prec = self.set_beta1(cnt)
+            print(prec.dimaxi, np.prod(prec.dimaxi))
             volsum += np.prod(prec.dimaxi)
             self.precs.append(prec)
             if all([(volsum > vol0), (cnt % 3 == 0)]) is True:
                 break
+        print(cnt)
+        print(volfrac)
+        print(volsum, vol0)
         self.ddata.precn = cnt
 
     def set_beta1(self, cnt):
@@ -181,10 +183,9 @@ class gn_dd_prec(object):
             elif i % 3 == 2:
                 prec.rotate = self.set_prec_rotate((0., 0., 0.))
             prec.strain = self.set_prec_strain()
-            print "coord", prec.coords
-            print "size", prec.dimaxi
+            print("coord", prec.coords)
+            print("size", prec.dimaxi)
             self.precs.append(prec)
-        return
 
     def write_precip_header(self):
         fid = open(self.precfile, 'w')
