@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-03-20 14:11:09
+# @Last Modified time: 2018-03-28 21:31:42
 
 
 import os
@@ -172,14 +172,11 @@ class fcc(object):
                                                [0.5, 0, 0.5],
                                                [0.5, 0.5, 0.0]], 'float')
 
-    def set_fcc_primitive(self, size=None):
-        if size == None:
-            size = (1, 1, 1)
+    def set_fcc_primitive(self, size=(1, 1, 1)):
         atoms = ase.atoms.Atoms(symbols=self.pot["element"],
                                 positions=[(0, 0, 0)],
                                 info={'unit_cell': 'primitive'},
                                 pbc=(1, 1, 1))
-
         self.set_fcc_primitive_direction()
         cell = self._primitive_directions * self.pot['latfcc']
         atoms.set_cell(cell, scale_atoms=True)
@@ -367,11 +364,15 @@ class gnStructure(bcc, fcc, hcp, add_strain):
             for atom in atoms:
                 if atom.symbol == 'W':
                     fid.write("%12.9f %12.9f %12.9f\n"
-                              % (atom.position[0], atom.position[1], atom.position[2]))
+                              % (atom.position[0],
+                                 atom.position[1],
+                                 atom.position[2]))
             for atom in atoms:
                 if atom.symbol == 'Re':
                     fid.write("%12.9f %12.9f %12.9f\n"
-                              % (atom.position[0], atom.position[1], atom.position[2]))
+                              % (atom.position[0],
+                                 atom.position[1],
+                                 atom.position[2]))
             fid.close()
         os.system("cp POSCAR POSCAR.vasp")
 
@@ -401,7 +402,7 @@ class gnStructure(bcc, fcc, hcp, add_strain):
         bx = np.dot(in_cell[1, :], vect_x.transpose())
         by = np.linalg.norm(np.cross(vect_x, in_cell[1, :]))
 
-        cx = np.dot(in_cell[2, :],  vect_x.transpose())
+        cx = np.dot(in_cell[2, :], vect_x.transpose())
 
         a_cross_b = np.cross(in_cell[0, :], in_cell[1, :])
         a_cross_b_unit = a_cross_b / np.linalg.norm(a_cross_b)
