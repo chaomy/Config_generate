@@ -3,15 +3,15 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-03-14 15:05:33
+# @Last Modified time: 2018-07-29 15:57:43
 
 
 import numpy as np
-from . import gn_dd_data_dat as dddat
-from . import gn_dd_load
-from . import gn_dd_ctrl
-from . import gn_dd_prec
-from . import gn_dd_cell
+import gn_dd_data_dat as dddat
+import gn_dd_load
+import gn_dd_ctrl
+import gn_dd_prec
+import gn_dd_cell
 
 
 class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
@@ -26,8 +26,8 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
         gn_dd_ctrl.gn_dd_ctrl.__init__(self)
         gn_dd_cell.gn_dd_cell.__init__(self)
         self.ddata = dddat.dd_dat
-        self.ndis = 7
-        self.ddata.nnodes = 20
+        self.ndis = 1
+        self.ddata.nnodes = 50
         self.ddata.totalnodes = self.ddata.nnodes * self.ndis
         self.burgs = dddat.hcpslip
         self.bkey = 'b1'

@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-03-20 14:11:09
+# @Last Modified time: 2018-06-21 18:33:19
 
 
 import os
@@ -12,52 +12,38 @@ import ase.lattice.cubic as Cubic
 import ase.lattice.hexagonal as Hexagonal
 import ase.io
 from ase.lattice.spacegroup import crystal
+from utils import latConverter
 import copy
+from numpy import floor, round
+
+default_dir = [[1, 0, 0],
+               [0, 1, 0],
+               [0, 0, 1]]
 
 
 class add_strain(object):
 
     def __init__(self):
         self._delta = 0.02
+        self.getstrain = {'vol': self.volumetric_strain,
+                          'otho': self.volume_conserving_orthohombic,
+                          'mono': self.volume_conserving_monoclinic}
 
-    def volumetric_strain(self, delta=None):
-        # 3c11 + 6C12 #
-        if delta is None:
-            delta = self._delta
+    def volumetric_strain(self, delta=0.):  # 3c11 + 6C12 #
+        return np.mat([[1 + delta, 0, 0],
+                       [0, 1 + delta, 0],
+                       [0, 0, 1 + delta]], "float")
+
+    def volume_conserving_orthohombic(self, delta=0.):  # 2C11 - 2c12 #
         strain = np.mat([[1 + delta, 0, 0],
-                         [0, 1 + delta, 0],
-                         [0, 0, 1 + delta]], "float")
+                         [0, 1 - delta, 0],
+                         [0, 0, 1 / (1 - delta**2)]], 'float')
         return strain
 
-    def volume_conserving_orthohombic(self, delta=None):
-        # 2C11 - 2c12 #
-        if delta is None:
-            delta = self._delta
-        # strain = np.mat([[1 + delta, 0, 0],
-        #                  [0, 1 - delta, 0],
-        #                  [0, 0, 1 / (1 - delta**2)]], 'float')
-        strain = np.mat([[1 / (1 - delta**2), 0., 0.],
-                         [0., 1 + delta, 0],
-                         [0., 0., 1 - delta]])
-        # strain = np.mat([[1 - delta, 0.0, 0.0],
-        #                  [0.0, 1. / (1 - delta**2), 0.0],
-        #                  [0.0, 0.0, 1 + delta]])
-        return strain
-
-    def volume_conserving_monoclinic(self, delta=None):
-        # 2c44 #
-        if delta is None:
-            delta = self._delta
-
-        # strain = np.mat([[1, delta, 0],
-        #                  [delta, 1, 0],
-        #                  [0, 0, 1 / (1 - delta**2)]], 'float')
-        strain = np.mat([[1. / (1 - delta**2), 0.0, 0.0],
-                         [0.0, 1.0, delta],
-                         [0.0, delta, 1.0]])
-        # strain = np.mat([[1.0, 0.0, delta],
-        #                  [0.0, 1. / (1 - delta**2), 0.0],
-        #                  [delta, 0.0, 1.0]])
+    def volume_conserving_monoclinic(self, delta=0.):  # 2c44 #
+        strain = np.mat([[1, delta, 0],
+                         [delta, 1, 0],
+                         [0, 0, 1 / (1 - delta**2)]], 'float')
         return strain
 
 
@@ -71,8 +57,7 @@ class bcc(object):
     def set_bcc_primitive(self, size=(1, 1, 1)):
         atoms = ase.atoms.Atoms(symbols=self.pot["element"],
                                 positions=[(0, 0, 0)],
-                                info={'unit_cell': 'primitive'},
-                                pbc=(1, 1, 1))
+                                info={'unit_cell': 'primitive'}, pbc=(1, 1, 1))
         self.set_bcc_primitive_direction()
         cell = self._primitive_directions * self.pot['latbcc']
         atoms.set_cell(cell, scale_atoms=True)
@@ -85,7 +70,7 @@ class bcc(object):
 
     def set_bcc_convention(self, directions=None, size=(1, 1, 1)):
         if directions is None:
-            directions = self._default_direction
+            directions = default_dir
         atoms = Cubic.BodyCenteredCubic(directions=directions,
                                         latticeconstant=self.pot['latbcc'],
                                         size=size,
@@ -98,10 +83,8 @@ class bcc(object):
         atoms = self.set_bcc_convention(in_direction, size)
         self.write_config_output(atoms)
 
-    def write_bcc_with_strain(self,
-                              delta=None,
-                              in_tag='ortho',
-                              size=None,
+    def write_bcc_with_strain(self, delta=None,
+                              in_tag='ortho', size=None,
                               write=False):
 
         if in_tag == 'ortho' or in_tag == 'c12':
@@ -188,7 +171,7 @@ class fcc(object):
 
     def set_fcc_convention(self, directions=None, size=(1, 1, 1)):
         if directions is None:
-            l_direction = self._default_direction
+            l_direction = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         atoms = Cubic.FaceCenteredCubic(directions=l_direction,
                                         latticeconstant=self.pot['latfcc'],
                                         size=size,
@@ -297,13 +280,12 @@ direct
             """ % (alat))
 
 
-class gnStructure(bcc, fcc, hcp, add_strain):
+class gnStructure(bcc, fcc, hcp, add_strain, latConverter.latConverter):
 
     def __init__(self, pot=None):
         add_strain.__init__(self)
-        self._default_direction = [[1, 0, 0],
-                                   [0, 1, 0],
-                                   [0, 0, 1]]
+        latConverter.latConverter.__init__(self)
+        self.pot = pot
 
     def mymkdir(self, dirname):
         if not os.path.isdir(dirname):
@@ -426,7 +408,7 @@ class gnStructure(bcc, fcc, hcp, add_strain):
         symbols = np.unique(allsymbos)
         print(symbols)
         with open(filename, mode="w") as fid:
-            fid.write("#lmp data config")
+            fid.write("# lmp data config")
             fid.write("\n")
             fid.write("%d atoms\n" % (natm))
             fid.write("{} atom types\n".format(len(symbols)))
@@ -490,14 +472,25 @@ class gnStructure(bcc, fcc, hcp, add_strain):
                                   % (positions[i, 0], positions[i, 1], positions[i, 2]))
         fid.close()
 
-    def write_lmp_config_data(self, atoms, filename="lmp_init.txt"):
-        positions = atoms.get_positions()
-        natm = len(positions)
-        cell = atoms.get_cell()
+    def write_lmp_config_data(self, atoms, filename="lmp_init.txt", cml="#lmp data config"):
+        cell = np.mat(atoms.get_cell())
+        pos = np.mat(atoms.get_positions())
+
+        # coor = np.mat(atoms.get_scaled_positions())
+        # cell = self.vecToMat(self.matToVec(cell.copy()))
+        # cell[1, 0] = cell[1, 0] - round(cell[1, 0] / cell[0, 0]) * cell[0, 0]
+        # cell[2, :] = cell[2, :] - round(cell[2, 1] / cell[1, 1]) * cell[1, :]
+        # cell[2, 0] = cell[2, 0] - round(cell[2, 0] / cell[0, 0]) * cell[0, 0]
+        # coor = coor - floor(coor)
+        # pos = np.mat(coor) * np.mat(cell)
+
+        natm = len(pos)
         allsymbos = atoms.get_chemical_symbols()
         symbols = np.unique(allsymbos)
         with open(filename, mode="w") as fid:
-            fid.write("#lmp data config")
+            # fid.write("#lmp data config Vol = {:.3f}".format(
+            #     np.linalg.det(cell)))
+            fid.write(cml)
             fid.write("\n")
             fid.write("%d atoms\n" % (natm))
             fid.write("{} atom types\n".format(len(symbols)))
@@ -512,7 +505,7 @@ class gnStructure(bcc, fcc, hcp, add_strain):
                 for k in range(len(symbols)):
                     if allsymbos[i] == symbols[k]:
                         fid.write("%d %d %12.9f %12.9f %12.9f\n"
-                                  % (i + 1, k + 1, positions[i, 0], positions[i, 1], positions[i, 2]))
+                                  % (i + 1, k + 1, pos[i, 0], pos[i, 1], pos[i, 2]))
         fid.close()
 
     def write_potfit_config(self, atoms, filename="dummy.config"):

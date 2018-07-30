@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-02-04 14:59:00
+# @Last Modified time: 2018-05-07 23:25:55
 
 
 import os
@@ -23,8 +23,8 @@ class gb_param:
 
 
 class gn_md_infile(object):
-    def __init__(self, inpot, **kwargs):
-        self.pot = inpot
+
+    def __init__(self, **kwargs):
         self.config_file = None
         self.basics = dict([('inrelax', 'in.minimize'),
                             ('innebinit', 'in.init'),
@@ -38,15 +38,12 @@ class gn_md_infile(object):
             for key, value in kwargs.items():
                 if key in self.basics:
                     self.basics[key] = value
-        return
 
     def set_md_temperature(self, in_temperature):
         self.md_temperature = in_temperature
-        return
 
     def set_md_config(self, config_file):
         self.config_file = config_file
-        return
 
     def write_cu3au_infile(self,
                            input_size=None):
@@ -60,48 +57,41 @@ class gn_md_infile(object):
             input_size.zdim = 20
 
         _drv._write_Cu3Au_perf("in.test", self.pot["lattice"], input_size)
-        return
 
     def write_mgnd_infile(self, fname, param):
         from .gn_md_input_mgnd import gn_md_input_mgnd
         _drv = gn_md_input_mgnd()
         _drv._write_mg_nd_inter_phase(fname, param)
-        return
 
     def write_hcp_lattice_infile(self, fname="in.hcp",
                                  element='Nb'):
         from .gn_md_input_hcp_lattice import gn_md_input_hcp_lattice
         _drv = gn_md_input_hcp_lattice()
         _drv._write_hcp_lattice(fname)
-        return
 
     def write_fcc_lattie_infile(self, fname="in.fcc",
                                 element='Nb'):
         from .gn_md_input_fcc_lattice import gn_md_input_fcc_lattice
         _drv = gn_md_input_fcc_lattice()
         _drv._write_fcc_lattice(fname)
-        return
 
     def write_bcc_lattice_infile(self,
                                  fname="in.bcc"):
         from .gn_md_input_bcc_lattice import gn_md_input_bcc_lattice
         _drv = gn_md_input_bcc_lattice()
         _drv._write_bcc_lattice(fname)
-        return
 
     def gn_gsf_minimize(self,
                         config_file="in.gsf", tag='relaxed'):
         from .gn_md_input_gsf import gn_md_input_gsf
         _drv = gn_md_input_gsf()
         _drv._write_gsf_minimize(config_file, tag)
-        return
 
     def gn_md_input_vacancy(self,
                             config_file='in.vacancy'):
         from .gn_md_input_vacancy import gn_md_input_vacancy
         _drv = gn_md_input_vacancy()
         _drv._write_input_vacancy(config_file)
-        return
 
     def gn_md_input_vacancy_migration(self):
         from .gn_md_input_vacancy import gn_md_input_vacancy
@@ -110,24 +100,19 @@ class gn_md_infile(object):
         _drv._write_neb_init('init.txt')
         _drv._write_neb_final('final.txt')
         _drv._write_neb_run('init_restart')
-        return
 
-    def write_md_thermo_expand(self,
-                               *args,
-                               **kwargs):
-        from .gn_md_input_thermo import gn_md_input_thermo
+    def write_md_thermo_expand(self, *args, **kwargs):
+        from gn_md_input_thermo import gn_md_input_thermo
         _drv = gn_md_input_thermo(**self.basics)
         if args is not None:
             for arg in args:
-                if arg == 'init':
+                if arg in ['init']:
                     print("find ")
                     _drv._write_equilibrium(**kwargs)
                     return
         _drv._write_run_npt(**kwargs)
-        return
 
-    def gn_md_minimize_cfg(self,
-                           config_file=None, fix=None):
+    def gn_md_minimize_cfg(self, config_file=None, fix=None):
 
         if config_file is not None:
             self.set_md_config(config_file)
@@ -198,30 +183,23 @@ minimize     1e-20      1e-20     100000     100000
                                self.pot["element"],
                                self.pot["element"]))
 
-        return
-
-    def gn_md_minimize(self,
-                       config_file=None):
+    def gn_md_minimize(self, config_file=None):
 
         if config_file is not None:
             self.set_md_config(config_file)
 
         with open("in.minimize", 'w') as fid:
             fid.write("""
-# --------------------- INITIALIZAITION ---------------------
 clear
 units	     metal
-dimension	 3
-boundary	 p  p  p
 atom_style	 atomic
-# --------------------- FORCE FIELDS ---------------------
+
 read_data       %s
-# --------------------- FORCE FIELDS ---------------------
 pair_style      %s  
 pair_coeff      *  *   %s   %s
 neighbor        2.0     bin
 neigh_modify    every    1    delay   0  check   yes
-# --------------------- SETTINGS ---------------------
+
 compute     peratom     all     pe/atom
 compute     eatoms      all     reduce   sum     c_peratom
 thermo            1000
@@ -229,7 +207,6 @@ thermo_style      custom   step   pe   c_eatoms   etotal
 
 variable     Ef     equal   "c_eatoms"
 
-#--------------------- MINIMIZE -------------------------------
 min_style    cg
 minimize     1e-20      1e-20     100000     100000
 run          1
@@ -237,7 +214,6 @@ run          1
                            self.pot['pair_style'],
                            self.pot['file'],
                            self.pot['element']))
-        return
 
     def gn_md_shear_lattice(self,
                             config_file=None,
@@ -302,7 +278,6 @@ unfix   2
                             self.pot['file'],
                             self.pot["element"],
                             temp, temp, temp))
-        return
 
     def gn_md_temp_lattice(self,
                            config_file=None,
@@ -354,29 +329,23 @@ print "Lattice_constanty = ${lengthy}"
                             self.pot["file"],
                             self.self["element"],
                             temp, temp, temp))
-        return
 
-    def gn_md_lattice(self,
-                      config_file=None):
+    def gn_md_lattice(self, config_file=None):
 
         if config_file is not None:
             self.set_md_config(config_file)
         with open("in.lattice", 'w') as fid:
             fid.write("""
-# --------------------- INITIALIZAITION ---------------------
 clear
 units	     metal
-dimension	 3
-boundary	 p  p  p
 atom_style	 atomic
-# --------------------- FORCE FIELDS ---------------------
 read_data       %s
-# --------------------- FORCE FIELDS ---------------------
+
 pair_style      eam/alloy
 pair_coeff      *  *   %s   %s
 neighbor        2.0     bin
 neigh_modify    every    1    delay   0  check   yes
-# --------------------- SETTINGS ---------------------
+
 compute     peratom     all     pe/atom
 compute     eatoms      all     reduce   sum     c_peratom
 thermo            1000
@@ -385,7 +354,6 @@ thermo_style      custom  step   pe   c_eatoms  lx   ly   lz
 
 variable     Ef     equal   "c_eatoms"
 
-#--------------------- MINIMIZE -------------------------------
 fix          1    all    box/relax  x  0.0  y  0.0  z  0.0  couple none  vmax 0.001
 min_style    cg
 minimize     1e-20      1e-20     100000     100000
@@ -400,7 +368,6 @@ print "Lattice_constanty = ${lengthy}\"
                     """ % (self.config_file,
                            self.pot["file"],
                            self.pot["element"]))
-        return
 
     def gn_md_cij(self):
         with open("init.mod", 'w') as fid:
@@ -408,11 +375,11 @@ print "Lattice_constanty = ${lengthy}\"
 variable up equal 1.0e-6
 variable atomjiggle equal 1.0e-5
 
-#units		metal
+#units	  metal
 #variable cfac equal 6.2414e-7
 #variable cunits string eV/A^3
 
-units		metal
+units	 metal
 variable cfac equal 1.0e-4
 variable cunits string GPa
 
@@ -423,7 +390,6 @@ variable  maxeval equal 1000
 variable  dmax equal 1.0e-2
 
 variable a equal  %f
-
 boundary	p p p
 
 lattice     bcc $a
@@ -434,7 +400,7 @@ create_atoms  1 box
 mass 1 1.0e-20
                     """ % (self.pot['lattice']))
             fid.close()
-#         temperoraly deactivate it since we fix potential 
+#         temperoraly deactivate it since we fix potential
 #         with open("potential.mod", 'w') as fid:
 #             fid.write("""
 # pair_style  %s
@@ -453,7 +419,6 @@ mass 1 1.0e-20
 #                            self.pot['file'],
 #                            self.pot['element']))
 #             fid.close()
-        return
 
     def gn_md_pp_tensile(self,
                          temperature=None,
@@ -534,7 +499,6 @@ restart  10000   restart/*.restart
                            self.md_temperature,
                            deform_direction,
                            self.self.pot["element"]))
-        return
 
     def gn_md_nano_tensile(self,
                            temperature=None,
@@ -664,7 +628,6 @@ restart  10000  restart/*.restart
                            deform_direction,
                            self.self.pot["element"]))
             fid.close()
-            return
 
     def gn_md_add_force(self,
                         temp,
@@ -759,7 +722,6 @@ unfix    3
                     """ % (temp,
                            stress,
                            stress))
-        return
 
     def gn_md_tensile(self):
         with open("in.stat_tensile", 'w') as fid:
@@ -828,7 +790,6 @@ print "Syz = ${Syz}"
 print "Sxz = ${Sxz}"
                     """ % (self.potential_file, self.self.pot["element"]))
             fid.close()
-            return
 
     def write_shear_infile(self, file, basis, box):
         box = box * 10
@@ -872,9 +833,3 @@ minimize   1e-8   1e-8   100000   100000
                 box[0, 0],  box[1, 1], box[2, 2],
                 box[1, 0], box[2, 0], box[2, 1],
                 file))
-        return
-
-
-if __name__ == '__main__':
-    drv = gn_md_infile()
-    drv.gn_md_cij()

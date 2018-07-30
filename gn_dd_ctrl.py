@@ -3,12 +3,12 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-03-14 21:41:11
+# @Last Modified time: 2018-07-23 15:14:49
 
 # Be #
 from collections import OrderedDict
-from .gn_dd_ctrl_hcp import *
-from .gn_dd_ctrl_bcc import *
+from gn_dd_ctrl_hcp import *
+from gn_dd_ctrl_bcc import *
 
 
 class gn_dd_ctrl(object):

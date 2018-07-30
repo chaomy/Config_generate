@@ -11,6 +11,7 @@ import re
 
 
 class cal(object):
+
     def __init__(self,
                  directions,
                  size,
@@ -29,7 +30,6 @@ class cal(object):
         self._atoms = self.get_SuperCell()
         self._PerfPosition = self._atoms.get_positions()
         self._PerfCells = self._atoms.get_cell()
-        return
 
     def get_SuperCell(self):
         if self._structure == 'bcc':

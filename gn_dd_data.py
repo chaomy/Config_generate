@@ -3,12 +3,12 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-03-10 15:58:14
+# @Last Modified time: 2018-07-23 15:14:07
 
 
 from optparse import OptionParser
-from . import gn_dd_data_hcp
-from . import gn_dd_data_bcc
+import gn_dd_data_hcp
+import gn_dd_data_bcc
 
 if __name__ == '__main__':
     usage = "usage:%prog [options] arg1 [options] arg2"
@@ -21,6 +21,7 @@ if __name__ == '__main__':
 
     bcc = gn_dd_data_bcc.gn_dd_data_bcc()
     drv = gn_dd_data_hcp.gn_dd_data_hcp()
+
     dispatcher = {'hcp': drv.write_hcp_straight_data,
                   'hcporowan': drv.write_hcp_orawan_data,
                   'hcpprec': drv.inplane_hcp_beta1_prec,

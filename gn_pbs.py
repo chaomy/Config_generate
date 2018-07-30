@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2017-11-26 16:01:54
+# @Last Modified time: 2018-05-28 13:15:01
 
 import os
 
@@ -21,12 +21,10 @@ class gn_pbs(object):
         self._nnodes = nnodes
         self._wall_time = walltime
         self._ppn = 12
-        self._mem = 1 
-        return
+        self._mem = 2 
 
     def set_nnodes(self, nnodes=2):
         self._nnodes = nnodes
-        return
 
     def get_nnodes(self):
         return self._nnodes
@@ -36,7 +34,6 @@ class gn_pbs(object):
 
     def set_wall_time(self, wtime=12):
         self._wall_time = wtime
-        return
 
     def get_wall_time(self):
         return self._wall_time
@@ -46,39 +43,31 @@ class gn_pbs(object):
 
     def set_ppn(self, ppn):
         self._ppn = ppn
-        return
         
     def set_mem(self, mem):
         self._mem = mem
-        return
 
     def set_main_job(self, jobname):
         self.exe = jobname
-        return
 
     def set_job_title(self, title):
         self.job_title = title
-        return
 
     def set_pbs_type(self, in_type):
         self.in_type = in_type
-        return
 
     def get_job_name(self):
         list = ["A", "B", "C"]
         jobname = '-'.join(list)
         print(jobname)
-        return
 
     def copy_inputs(self, dirname, *args):
         for filename in args:
             os.system("cp {} {}".format(filename, dirname))
-        return
 
     def move_inputs(self, dirname, *args):
         for filename in args:
             os.system("mv {} {}".format(filename, dirname))
-        return
 
     def write_pbs(self, od=False):
         outfile = "va.pbs"
@@ -112,7 +101,6 @@ cd $PBS_O_WORKDIR
             else:
                 fid.write("""{}""".format(self.exe))
             fid.close()
-        return
 
 
 if __name__ == '__main__':

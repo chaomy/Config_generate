@@ -1,25 +1,15 @@
 #!/usr/bin/env python
-# encoding: utf-8
-
-###################################################################
-#
-# File Name :
-#
-###################################################################
-#
-# Purpose :
-#
-# Creation Date :
-# Last Modified :
-# Created By    : Chaoming Yang
-#
-###################################################################
+# -*- coding: utf-8 -*-
+# @Author: chaomy
+# @Date:   2018-03-29 16:50:26
+# @Last Modified by:   chaomy
+# @Last Modified time: 2018-07-01 02:19:09
 
 
 class gn_md_input_thermo(object):
+
     def __init__(self, **kwargs):
         self.basics = kwargs
-        return
 
     def _write_equilibrium(self, **kwargs):
         basics = self.basics
@@ -37,29 +27,23 @@ class gn_md_input_thermo(object):
                     defaults[key] = value
 
         with open(basics['innpt'], 'w') as fid:
-            fid.write("""clear
-units          metal
-dimension      3
-boundary       p p p
+            fid.write("""units          metal
 atom_style     atomic
 
 read_data      ../%s
 
-pair_style     %s
-pair_coeff     * *    ../%s   %s
-neighbor       2.0     bin
-neigh_modify   every   5    delay   0   check   yes
+pair_style     meam/spline    
+pair_coeff     * *    ../meam.lib.best    Nb 
+mass           *       92.906
+
+neigh_modify   every   5      delay   0   check   yes
 
 fix            100    all     box/relax   iso   0.0   vmax   0.1
 minimize       1e-20  1e-20   1000000   1000000
 
 write_restart  ../init_restart
-                    """ % (basics['read_data'],
-                           basics['pair_style'],
-                           basics['pair_coeff'],
-                           basics['element']))
+                    """ % (basics['read_data']))
             fid.close()
-        return
 
     def _write_run_npt(self, **kwargs):
         basics = self.basics
@@ -77,47 +61,40 @@ write_restart  ../init_restart
                     defaults[key] = value
 
         with open(basics['innpt'], 'w') as fid:
-            fid.write("""clear
-units          metal
-dimension      3
-boundary       p p p
-atom_style     atomic
+            fid.write("""units          metal
+read_data      lmp_init.txt
 
-read_restart   ../%s
-reset_timestep  0
-
-pair_style     %s
-pair_coeff     * *     ../%s   %s
-neighbor       2.0     bin
-neigh_modify   every   5    delay   0   check   yes
-
-timestep       0.001
+pair_style     meam/spline    
+pair_coeff     * *    ../meam.lib.best    Nb 
+mass           *      92.906
 
 thermo         500
-thermo_style   custom   step   etotal   pe   temp   press   lx  ly  lz
-#dump          mcust   all  custom   10000    out/md.*.dump  id  type  mass x y z
+thermo_style   custom   step   etotal  pe  temp  press   pxx  pyy  pzz  lx  ly  lz
 
-fix            1       all     npt     temp     %g    %g      0.1    iso   %g    %g    1.0
-
-run            %d
-unfix          1
-
-fix            2       all     npt     temp     %g     %g     0.1    iso   %g    %g    1.0
-run            300000
-unfix          2
-write_restart  ../init_restart
-                    """ % (basics['read_restart'],
-                           basics['pair_style'],
-                           basics['pair_coeff'],
-                           basics['element'],
-                           defaults['tstart'],
-                           defaults['tend'],
-                           defaults['pstart'],
-                           defaults['pend'],
-                           defaults['run1'],
-                           defaults['tend'],
-                           defaults['tend'],
-                           defaults['pend'],
-                           defaults['pend']))
+velocity       all      create  %g       4928459
+fix            1        all     npt      temp     %g  %g  50   iso  %g  %g  100 drag 1.0
+#dump          1        all     custom   10000    dump.*  id  type  x y z
+restart        500000   rst.* 
+run            5000000
+unfix          1 
+                    """ % (2.0 * defaults['tend'], defaults['tend'], defaults['tend'],
+                           defaults['pend'], defaults['pend']))
             fid.close()
-        return
+
+        with open('in.rst', 'w') as fid:
+            fid.write("""units          metal
+read_restart   rst.500000 
+
+pair_style     meam/spline    
+pair_coeff     * *    ../meam.lib.best    Nb 
+mass           *      92.906
+
+thermo         500
+thermo_style   custom   step   etotal  pe  temp  press   pxx  pyy  pzz  lx  ly  lz
+
+fix            1        all     npt      temp     %g  %g  50   iso  %g  %g  100 drag 5.0
+restart        500000   rst.* 
+run            2500000
+unfix          1 
+                    """ % (defaults['tend'], defaults['tend'], defaults['pend'], defaults['pend']))
+            fid.close()

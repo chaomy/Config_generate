@@ -3,11 +3,11 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-03-14 22:15:34
+# @Last Modified time: 2018-07-24 14:19:52
 
 import numpy as np
 from numpy import cos, sin, pi
-from . import gn_dd_data_dat as dddat
+import gn_dd_data_dat as dddat
 
 
 class gn_dd_prec(object):
@@ -92,7 +92,7 @@ class gn_dd_prec(object):
 
     def hcp_beta1_prec(self):
         self.set_cell()
-        # self.set_num_prec()
+        self.set_num_prec()
         self.set_3d_prec()
         fid = self.write_precip_header()
         self.write_precip_data(fid)
@@ -117,8 +117,8 @@ class gn_dd_prec(object):
         return A
 
     def set_prec_size(self):
-        lens = np.array([40, 2, 40]) * np.random.rand(3)
-        size = np.array([603, 30, 603]) + lens
+        lens = np.array([80, 1, 60]) * np.random.rand(3)
+        size = np.array([180, 15, 440]) + lens
         return size
 
     def set_prec_3d_coords(self):
