@@ -3,7 +3,11 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
+<<<<<<< HEAD
 # @Last Modified time: 2018-05-07 23:25:55
+=======
+# @Last Modified time: 2018-03-23 13:27:43
+>>>>>>> 7bcc62870d6feb4bd4519e5ae9aee7ce1dcbda5a
 
 
 import os
@@ -183,7 +187,12 @@ minimize     1e-20      1e-20     100000     100000
                                self.pot["element"],
                                self.pot["element"]))
 
+<<<<<<< HEAD
     def gn_md_minimize(self, config_file=None):
+=======
+    def gn_md_minimize(self,
+                       config_file=None):
+>>>>>>> 7bcc62870d6feb4bd4519e5ae9aee7ce1dcbda5a
 
         if config_file is not None:
             self.set_md_config(config_file)
