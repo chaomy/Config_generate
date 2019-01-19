@@ -3,11 +3,8 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-<<<<<<< HEAD
-# @Last Modified time: 2018-06-21 18:33:19
-=======
+# @Last Modified time: 2018-08-13 18:17:52
 # @Last Modified time: 2018-03-28 21:31:42
->>>>>>> 7bcc62870d6feb4bd4519e5ae9aee7ce1dcbda5a
 
 
 import os

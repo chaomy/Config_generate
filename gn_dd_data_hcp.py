@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-06-28 00:35:14
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-07-29 15:57:43
+# @Last Modified time: 2019-01-18 23:58:20
 
 
 import numpy as np
@@ -26,8 +26,8 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
         gn_dd_ctrl.gn_dd_ctrl.__init__(self)
         gn_dd_cell.gn_dd_cell.__init__(self)
         self.ddata = dddat.dd_dat
-        self.ndis = 1
-        self.ddata.nnodes = 50
+        self.ndis = 1 
+        self.ddata.nnodes = 30*2
         self.ddata.totalnodes = self.ddata.nnodes * self.ndis
         self.burgs = dddat.hcpslip
         self.bkey = 'b1'
@@ -72,7 +72,7 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
 
         length = (self.ddata.cell[0, 1] - self.ddata.cell[0, 0])
         disl = length
-        delta = disl / (nnodes - 1)
+        delta = disl / (nnodes)
 
         idr = list(range(nnodes))
         idl = list(range(nnodes))
@@ -90,7 +90,7 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
                 node.pos = np.zeros(3)
                 node.pos[0] = \
                     -0.5 * disl + i * delta
-                node.pos[1] = 50 * k + 2800
+                node.pos[1] = 120 * k + 2000
                 node.narm = 2
                 node.arml = self.set_arm(lid + nnodes * k,
                                          self.burgs[bkey]['b'], plane)
@@ -136,12 +136,14 @@ class gn_dd_data_hcp(gn_dd_prec.gn_dd_prec,
 
     def write_hcp_straight_data(self):
         self.set_fname('hcp')
-        self.write_ctrl_file()
+        # self.write_ctrl_file()
         # nlist = self.gn_hcp_straight_dis_periodic()
         nlist = self.gn_hcp_straight_dis_many()
         fid = self.write_data_head()
         fid = self.write_domain_data(fid)
-        fid = self.write_nodal_data(nlist, fid)
+        # fid = self.write_nodal_data(nlist, fid)
+        fid = self.write_nodal_data_phasefield(nlist, fid)
+        # self.inplane_hcp_beta1_prec()
 
     def write_hcp_orawan_data(self):
         self.set_fname('hcp')

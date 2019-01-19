@@ -3,7 +3,7 @@
 # @Author: chaomy
 # @Date:   2017-07-10 08:37:35
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-07-24 14:19:52
+# @Last Modified time: 2018-08-06 14:38:02
 
 import numpy as np
 from numpy import cos, sin, pi
@@ -20,7 +20,6 @@ class gn_dd_prec(object):
 
     def set_num_prec(self, volfrac=0.0015):
         vol0 = volfrac * self.ddata.cellvol
-        print(vol0)
         volsum = 0.0
         cnt = 0
         while True:
@@ -84,14 +83,13 @@ class gn_dd_prec(object):
 
     # precipiates in signle basal plane
     def inplane_hcp_beta1_prec(self):
-        self.ddata.precn = 66
+        self.ddata.precn = 1
         self.set_cell()
         self.set_inplane_prec()
         fid = self.write_precip_header()
         self.write_precip_data(fid)
 
     def hcp_beta1_prec(self):
-        self.set_cell()
         self.set_num_prec()
         self.set_3d_prec()
         fid = self.write_precip_header()

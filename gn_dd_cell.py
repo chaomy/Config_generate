@@ -2,7 +2,7 @@
 # @Author: chaomy
 # @Date:   2017-12-09 21:23:40
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-07-23 15:15:27
+# @Last Modified time: 2019-01-18 23:59:43
 
 import numpy as np
 import gn_dd_data_dat as dddat
@@ -21,7 +21,8 @@ class gn_dd_cell(object):
         self.ddata.domid = domid
 
     # def set_cell(self, side=2.4e3 * 0.5 / (0.32)):
-    def set_cell(self, side=3500):
+    # len * 0.5 * 3.2094
+    def set_cell(self, side=2000.00):
         cell = np.ndarray([3, 2])
         cell[:, 0] = np.ones(3) * -side
         cell[:, 1] = np.ones(3) * side
@@ -68,6 +69,20 @@ dataDecompGeometry = [
  """.format(self.ddata.domid,
             cell[0, 0], cell[1, 0], cell[2, 0],
             cell[0, 1], cell[1, 1], cell[2, 1]))
+        return fid
+
+    def write_nodal_data_phasefield(self, nlist, fid):
+        fid.write("nodalData = \n")
+        fid.write("# Primary lines: node_tag, x, y, z, num_arms, constraint \n")
+        fid.write("# Secondary lines: arm_tag, burgx, burgy, burgz, nx, ny, nz\n")
+        for node in nlist:
+            fid.write("{},{} {} {} {} {} {} {} {} {} {} {}\n".format(node.domid,
+                                                                     node.nodeid, node.pos[0],
+                                                                     node.pos[1], node.pos[2], 0.0,
+                                                                     node.narm, node.const,
+                                                                     0, 0, 0, 0))
+            fid = self.write_arm_data(node.arml, fid)
+            fid = self.write_arm_data(node.armr, fid)
         return fid
 
     def write_nodal_data(self, nlist, fid):

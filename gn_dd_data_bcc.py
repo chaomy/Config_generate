@@ -2,7 +2,7 @@
 # @Author: chaomy
 # @Date:   2017-12-09 21:16:29
 # @Last Modified by:   chaomy
-# @Last Modified time: 2018-07-23 15:16:13
+# @Last Modified time: 2018-12-14 21:18:53
 
 import numpy as np
 import gn_dd_data_dat as dddat
@@ -70,8 +70,6 @@ class gn_dd_data_bcc(gn_dd_prec.gn_dd_prec,
         fid = self.write_data_head()
         fid = self.write_domain_data(fid)
         fid = self.write_nodal_data(nlist, fid)
-
         self.write_ctrl_file(ltype='stress')
         # self.gn_bcc_single_sphere()
         self.gn_fcc_inplane_sphere()
-        return
